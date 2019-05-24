@@ -2,6 +2,7 @@
 #include <fstream> // reading files
 
 #include "CPU.h"
+#include "Insn.h"
 
 CPU::CPU(char* rom_name) {
 	printf("CPU constructed!\n");
@@ -44,16 +45,18 @@ CPU::CPU(char* rom_name) {
 
 }
 
-void CPU::decode(unsigned char opcode) {
-	printf("opcode: %02x\n", opcode);
-	switch(opcode) {
-		case 0x60:
-			printf("LD B n\n");
-			break;
-		default:
-			printf("opcode %02x unknown\n", opcode);
-			break;
-	}
+void CPU::decode(unsigned char* bytes, int num_bytes) {
+	//Insn insn(bytes, num_bytes);
+ 
+	//switch(insn.opcode) {
+	//	// LD, nn, n
+	//	case 0x60:
+	//		printf("LD B n\n");
+	//		break;
+	//	default:
+	//		printf("opcode %02x unknown\n", opcode);
+	//		break;
+	//}
 }
 
 CPU::~CPU() {

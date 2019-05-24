@@ -13,7 +13,6 @@ int main(int argc, char* argv[]) {
 	}
 	
 	CPU cpu(argv[1]);
-	cpu.decode(0x60);
 	
 	return 0;
 }
