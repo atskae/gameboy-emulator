@@ -16,7 +16,7 @@ CPU::CPU(char* rom_name) {
 
 	// load ROM
 	std::ifstream rom_file(rom_name, std::ifstream::binary);
-	if(!rom) {
+	if(!rom_file) {
 		printf("Failed to open %s\n", rom_name);
 		return;
 	}
@@ -27,9 +27,9 @@ CPU::CPU(char* rom_name) {
 	printf("%s (%i bytes)\n", rom_name, this->num_bytes_rom);
 	rom_file.seekg(0, std::ios::beg); // go back to beginning
 
-	this->rom = new char[this->num_bytes_rom];
+	this->rom = new char[num_bytes_rom];
 	rom_file.read(this->rom, this->num_bytes_rom);
-	if(!rom) {
+	if(!this->rom) {
 		printf("Failed to read %s\n", rom_name);
 		delete[] this->rom;
 		return;

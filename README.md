@@ -2,8 +2,8 @@
 Revisiting my childhood.
 
 ## Directories
-* `src`: C++ files of the emulator
-* `roms`: GameBoy cartridges
+* `src` C++ files of the emulator
+* `roms` GameBoy cartridges
 
 ## Resources
 * [Why did I spend 1.5 months creating a Gameboy emulator?](https://blog.rekawek.eu/2017/02/09/coffee-gb/)
