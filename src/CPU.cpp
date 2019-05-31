@@ -46,8 +46,42 @@ CPU::CPU(char* rom_name) {
 }
 
 void CPU::decode(unsigned char* bytes, int num_bytes) {
-	//Insn insn(bytes, num_bytes);
- 
+	
+	unsigned char opcode = bytes[num_bytes-1];
+	reg_t rd = REG_INVALID;
+	reg_t rs = REG_INVALID;
+
+	switch(opcode) {
+		case 0x06:
+			rd = REG_D;
+			printf("0x06 here! rd=%i\n", rd);
+			//this->insn = LD8; // 8-bit Load
+			//break;
+		case 0x0E:
+			rd = REG_C;
+			printf("0x0E here! rd=%i\n", rd);
+			//this->insn = LD8; // 8-bit Load
+			//break;
+		case 0x16:
+			rd = REG_C;
+			//this->insn = LD8; // 8-bit Load
+			//break;
+		case 0x1E:
+			rd = REG_E;
+			//this->insn = LD8; // 8-bit Load
+			//break;
+		case 0x26:
+			rd = REG_H;
+			//this->insn = LD8; // 8-bit Load
+			//break;
+		case 0x2E:
+			rd = REG_L;
+			break;
+		default:
+			printf("%02x invalid opcode.\n", opcode);
+			break;
+	}
+	printf("opcode %02x, rd=%i\n", opcode, rd);
 	//switch(insn.opcode) {
 	//	// LD, nn, n
 	//	case 0x60:

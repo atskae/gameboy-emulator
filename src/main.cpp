@@ -13,6 +13,8 @@ int main(int argc, char* argv[]) {
 	}
 	
 	CPU cpu(argv[1]);
+	unsigned char insn = 0x06;
+	cpu.decode(&insn, 1);
 	
 	return 0;
 }

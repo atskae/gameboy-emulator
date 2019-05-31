@@ -1,8 +1,11 @@
 #ifndef GB_INSN_H
 #define GB_INSN_H
 
+#include "Reg.h"
+
 enum insn_t {
-	LD8, // 8-bit Loads
+	// Manual labels all memory operations as "LOADs" ; renaming them here
+	MV8, // 8-bit Move
 	LD16, // 16-bit Loads
 	NOP,
 	INVALID
