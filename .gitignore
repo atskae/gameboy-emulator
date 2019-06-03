@@ -2,3 +2,4 @@
 *.swp
 *.DS_Store
 src/gameboy
+opcodes/opcodes.csv

@@ -13,8 +13,14 @@ class Insn {
 		reg_t rs; // source register
 		unsigned short imm; // immediate 8-bit or 16-bit data
 	
-		int num_cycles;
-	
+		int cycles;
+
+		// flags that this instruction modifies
+		bool z_f;
+		bool n_f;
+		bool h_f;
+		bool c_f;
+
 		Insn(unsigned char* bytes, int size);
 		~Insn();
 };

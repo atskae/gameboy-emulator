@@ -17,3 +17,4 @@ where `<ROM file>` is a GameBoy cartridge binary (ROM). Sample ROMs can be found
 ## Source File Descriptions
 * `main.cpp`
 * `CPU.cpp`
+* `opcodes.csv` Contains opcodes extracted from the [Gameboy CPU (LR35902) instruction set](http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html) table using the parsing script `../opcodes/parse.py`
