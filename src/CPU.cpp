@@ -1,12 +1,40 @@
-#include <stdio.h> // printf() ; I hate cout
+#include <iostream>
+#include <stdio.h> 
 #include <fstream> // reading files
+#include <sstream> // tokenizing opcodes
+#include <string> // getline
 
 #include "CPU.h"
 #include "Insn.h"
 
 CPU::CPU(char* rom_name) {
-	// create the instruction set table
-	
+	// create the instruction set table from opcodes.csv
+	std::ifstream csv_file("opcodes.csv");
+	std::string line;
+	int line_num = -1; 
+	// values to read in from each line
+	int row;
+	int col;
+	std::string op;
+	int size;
+	int cycles;
+	int rd;
+	char rd_mem;
+	int rs;
+	char rs_mem;
+	std::string z_f;
+	while(std::getline(csv_file, line)) { // read in entire line
+		line_num++;
+		if(line_num == 0) continue; // ignore the header
+		// format: row,col,op,size,cycles,rd,rd_mem,rs,rs_mem,z_f,n_f,h_f,c_f
+		std::istringstream ss(line);
+		std::string token;
+		while(std::getline(ss, token, ',')) {
+			//std::cout << token << std::endl;
+			std::cout << token << std::endl;
+		}
+	}
+	csv_file.close();
 
 	// initialize registers
 	for(int i=0; i<NUM_REGS; i++) {

@@ -12,7 +12,7 @@ class CPU {
 
 	private:
 		// instruction set table
-		//Insn insn_table[16][16];
+		Insn* insn_table[16][16];
 
 		// registers
 		unsigned char regs[NUM_REGS]; // 8-bit registers ; use enum reg to index into regs[]
