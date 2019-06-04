@@ -12,27 +12,61 @@ CPU::CPU(char* rom_name) {
 	std::ifstream csv_file("opcodes.csv");
 	std::string line;
 	int line_num = -1; 
-	// values to read in from each line
-	int row;
-	int col;
 	std::string op;
-	int size;
-	int cycles;
-	int rd;
-	char rd_mem;
-	int rs;
-	char rs_mem;
-	std::string z_f;
+	int max = 16; // maximum value of row and col
+	unsigned char row = 0;
+	unsigned char col = 0;	
 	while(std::getline(csv_file, line)) { // read in entire line
 		line_num++;
 		if(line_num == 0) continue; // ignore the header
-		// format: row,col,op,size,cycles,rd,rd_mem,rs,rs_mem,z_f,n_f,h_f,c_f
+		
+		// format: op,size,cycles,rd,rd_mem,rs,rs_mem,z_f,n_f,h_f,c_f
 		std::istringstream ss(line);
 		std::string token;
-		while(std::getline(ss, token, ',')) {
-			//std::cout << token << std::endl;
-			std::cout << token << std::endl;
-		}
+		
+		// the first value is the op
+		std::getline(ss, op, ',');
+
+		// create the instruction
+		Insn** insn = &this->insn_table[row][col];
+		if(op.compare("NOP") == 0) *insn = new NOP(INSN_NOP);
+		else if(op.compare("LD") == 0) *insn = new LD(INSN_LD);	
+		else if(op.compare("INC") == 0) *insn = new INC(INSN_INC);
+		else if(op.compare("DEC") == 0) *insn = new DEC(INSN_DEC);
+		else if(op.compare("RLCA") == 0) *insn = new RLCA(INSN_RLCA);
+		else if(op.compare("ADD") == 0) *insn = new ADD(INSN_ADD);
+		else if(op.compare("RRCA") == 0) *insn = new RRCA(INSN_RRCA);
+		else if(op.compare("STOP") == 0) *insn = new STOP(INSN_STOP);
+		else if(op.compare("RLA") == 0) *insn = new RLA(INSN_RLA);
+		else if(op.compare("JR") == 0) *insn = new JR(INSN_JR);
+		else if(op.compare("RRA") == 0) *insn = new RRA(INSN_RRA);
+		else if(op.compare("DAA") == 0) *insn = new DAA(INSN_DAA);
+		else if(op.compare("CPL") == 0) *insn = new CPL(INSN_CPL);
+		else if(op.compare("SCF") == 0) *insn = new SCF(INSN_SCF);
+		else if(op.compare("CCF") == 0) *insn = new CCF(INSN_CCF);
+		else if(op.compare("HALT") == 0) *insn = new HALT(INSN_HALT);
+		else if(op.compare("ADC") == 0) *insn = new ADC(INSN_ADC);
+		else if(op.compare("SUB") == 0) *insn = new SUB(INSN_SUB);
+		else if(op.compare("SBC") == 0) *insn = new SBC(INSN_SBC);
+		else if(op.compare("AND") == 0) *insn = new AND(INSN_AND);
+		else if(op.compare("XOR") == 0) *insn = new XOR(INSN_XOR);
+		else if(op.compare("OR") == 0) *insn = new OR(INSN_OR);
+		else if(op.compare("CP") == 0) *insn = new CP(INSN_CP);
+		else if(op.compare("RET") == 0) *insn = new RET(INSN_RET);
+		else if(op.compare("POP") == 0) *insn = new POP(INSN_POP);
+		else if(op.compare("JP") == 0) *insn = new JP(INSN_JP);
+		else if(op.compare("CALL") == 0) *insn = new CALL(INSN_CALL);
+		else if(op.compare("PUSH") == 0) *insn = new PUSH(INSN_PUSH);
+		else if(op.compare("RST") == 0) *insn = new RST(INSN_RST);
+		else if(op.compare("PREFIX") == 0) *insn = new PREFIX(INSN_PREFIX);
+		else if(op.compare("RETI") == 0) *insn = new RETI(INSN_RETI);
+		else if(op.compare("LDH") == 0) *insn = new LDH(INSN_LDH);
+		else if(op.compare("DI") == 0) *insn = new DI(INSN_DI);
+		else if(op.compare("EI") == 0) *insn = new EI(INSN_EI);
+		else *insn = new INVALID(INSN_INVALID);
+
+		col = (col+1) % max;
+		if(col == 0) row = (row+1) % max;
 	}
 	csv_file.close();
 
