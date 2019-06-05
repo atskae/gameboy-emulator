@@ -13,7 +13,6 @@ CPU::CPU(char* rom_name) {
 	std::string line;
 	int line_num = -1; 
 	std::string op;
-	int max = 16; // maximum value of row and col
 	unsigned char row = 0;
 	unsigned char col = 0;	
 	while(std::getline(csv_file, line)) { // read in entire line
@@ -65,10 +64,45 @@ CPU::CPU(char* rom_name) {
 		else if(op.compare("EI") == 0) *insn = new EI(INSN_EI);
 		else *insn = new INVALID(INSN_INVALID);
 
-		col = (col+1) % max;
-		if(col == 0) row = (row+1) % max;
+		// format: op,size,cycles,rd,rd_mem,rs,rs_mem,z_f,n_f,h_f,c_f
+		
+		// insn size in bytes
+		std::getline(ss, token, ',');
+		(*insn)->size = atoi(token.c_str());
+
+		// duration in cycles
+		std::getline(ss, token, ',');
+		(*insn)->cycles = atoi(token.c_str());
+
+		// target register rd
+		std::getline(ss, token, ',');
+		(*insn)->rd = get_reg(token);
+
+		// rd_mem
+		std::getline(ss, token, ',');
+		if(token.compare("1") == 0) (*insn)->rd_mem = true;
+		else (*insn)->rd_mem = false;
+
+		// source register rs
+		std::getline(ss, token, ',');
+		(*insn)->rs = get_reg(token);
+		
+		// rs_mem
+		std::getline(ss, token, ',');
+		if(token.compare("1") == 0) (*insn)->rs_mem = true;
+		else (*insn)->rs_mem = false;
+
+		col = (col+1) % 16;
+		if(col == 0) row = (row+1) % 16;
 	}
 	csv_file.close();
+
+	// print insn table
+	//for(int r=0; r<16; r++) {
+	//	for(int c=0; c<16; c++) {
+	//		this->insn_table[r][c]->print();
+	//	}
+	//}
 
 	// initialize registers
 	for(int i=0; i<NUM_REGS; i++) {
@@ -112,16 +146,16 @@ CPU::CPU(char* rom_name) {
 // decodes one instruction
 void CPU::decode(unsigned char* bytes, int size) {
 	
-	unsigned char opcode = bytes[0];
-	reg_t rd = REG_INVALID;
-	reg_t rs = REG_INVALID;
+	//unsigned char opcode = bytes[0];
+	//reg_t rd = REG_INVALID;
+	//reg_t rs = REG_INVALID;
 
-	// column and row from GameBoy instruction set table:
-	// http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
-	
-	unsigned char row = (opcode & ~0xF0) >> 4; // read the upper nibble
-	unsigned char col = opcode & ~0x0F; // read the lower nibble
-	printf("opcode %02x, rd=%i\n", opcode, rd);
+	//// column and row from GameBoy instruction set table:
+	//// http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
+	//
+	//unsigned char row = (opcode & ~0xF0) >> 4; // read the upper nibble
+	//unsigned char col = opcode & ~0x0F; // read the lower nibble
+	//printf("opcode %02x, rd=%i\n", opcode, rd);
 
 }
 

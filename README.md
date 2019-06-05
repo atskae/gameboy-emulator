@@ -1,5 +1,5 @@
 # GameBoy Emulator
-Revisiting my childhood.
+Revisiting my childhood :heart:
 
 ## Directories
 * `src` C++ files of the emulator

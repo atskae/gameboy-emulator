@@ -59,10 +59,10 @@ class Insn {
 		int cycles; // duration
 
 		// flags that this instruction modifies
-		bool z_f;
-		bool n_f;
-		bool h_f;
-		bool c_f;
+		flag_op_t z_f;
+		flag_op_t n_f;
+		flag_op_t h_f;
+		flag_op_t c_f;
 
 		Insn(insn_t insn);
 		~Insn();
