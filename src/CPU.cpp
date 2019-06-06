@@ -8,7 +8,7 @@
 #include "Insn.h"
 
 CPU::CPU(char* rom_name) {
-	// create the instruction set table from opcodes.csv
+	// create the instruction.val table from opcodes.csv
 	std::ifstream csv_file("opcodes.csv");
 	std::string line;
 	int line_num = -1; 
@@ -19,7 +19,7 @@ CPU::CPU(char* rom_name) {
 		line_num++;
 		if(line_num == 0) continue; // ignore the header
 		
-		// format: op,size,cycles,rd,rd_mem,rs,rs_mem,z_f,n_f,h_f,c_f
+		// format: op,size,cycles,rd,rd_mem,rs,rs_mem,z_f,n_f,h_f,c_f,insn_str
 		std::istringstream ss(line);
 		std::string token;
 		
@@ -28,43 +28,43 @@ CPU::CPU(char* rom_name) {
 
 		// create the instruction
 		Insn** insn = &this->insn_table[row][col];
-		if(op.compare("NOP") == 0) *insn = new NOP(INSN_NOP);
-		else if(op.compare("LD") == 0) *insn = new LD(INSN_LD);	
-		else if(op.compare("INC") == 0) *insn = new INC(INSN_INC);
-		else if(op.compare("DEC") == 0) *insn = new DEC(INSN_DEC);
-		else if(op.compare("RLCA") == 0) *insn = new RLCA(INSN_RLCA);
-		else if(op.compare("ADD") == 0) *insn = new ADD(INSN_ADD);
-		else if(op.compare("RRCA") == 0) *insn = new RRCA(INSN_RRCA);
-		else if(op.compare("STOP") == 0) *insn = new STOP(INSN_STOP);
-		else if(op.compare("RLA") == 0) *insn = new RLA(INSN_RLA);
-		else if(op.compare("JR") == 0) *insn = new JR(INSN_JR);
-		else if(op.compare("RRA") == 0) *insn = new RRA(INSN_RRA);
-		else if(op.compare("DAA") == 0) *insn = new DAA(INSN_DAA);
-		else if(op.compare("CPL") == 0) *insn = new CPL(INSN_CPL);
-		else if(op.compare("SCF") == 0) *insn = new SCF(INSN_SCF);
-		else if(op.compare("CCF") == 0) *insn = new CCF(INSN_CCF);
-		else if(op.compare("HALT") == 0) *insn = new HALT(INSN_HALT);
-		else if(op.compare("ADC") == 0) *insn = new ADC(INSN_ADC);
-		else if(op.compare("SUB") == 0) *insn = new SUB(INSN_SUB);
-		else if(op.compare("SBC") == 0) *insn = new SBC(INSN_SBC);
-		else if(op.compare("AND") == 0) *insn = new AND(INSN_AND);
-		else if(op.compare("XOR") == 0) *insn = new XOR(INSN_XOR);
-		else if(op.compare("OR") == 0) *insn = new OR(INSN_OR);
-		else if(op.compare("CP") == 0) *insn = new CP(INSN_CP);
-		else if(op.compare("RET") == 0) *insn = new RET(INSN_RET);
-		else if(op.compare("POP") == 0) *insn = new POP(INSN_POP);
-		else if(op.compare("JP") == 0) *insn = new JP(INSN_JP);
-		else if(op.compare("CALL") == 0) *insn = new CALL(INSN_CALL);
-		else if(op.compare("PUSH") == 0) *insn = new PUSH(INSN_PUSH);
-		else if(op.compare("RST") == 0) *insn = new RST(INSN_RST);
-		else if(op.compare("PREFIX") == 0) *insn = new PREFIX(INSN_PREFIX);
-		else if(op.compare("RETI") == 0) *insn = new RETI(INSN_RETI);
-		else if(op.compare("LDH") == 0) *insn = new LDH(INSN_LDH);
-		else if(op.compare("DI") == 0) *insn = new DI(INSN_DI);
-		else if(op.compare("EI") == 0) *insn = new EI(INSN_EI);
-		else *insn = new INVALID(INSN_INVALID);
+		if(op.compare("NOP") == 0) *insn = new NOP(OP_NOP, op);
+		else if(op.compare("LD") == 0) *insn = new LD(OP_LD, op);	
+		else if(op.compare("INC") == 0) *insn = new INC(OP_INC, op);
+		else if(op.compare("DEC") == 0) *insn = new DEC(OP_DEC, op);
+		else if(op.compare("RLCA") == 0) *insn = new RLCA(OP_RLCA, op);
+		else if(op.compare("ADD") == 0) *insn = new ADD(OP_ADD, op);
+		else if(op.compare("RRCA") == 0) *insn = new RRCA(OP_RRCA, op);
+		else if(op.compare("STOP") == 0) *insn = new STOP(OP_STOP, op);
+		else if(op.compare("RLA") == 0) *insn = new RLA(OP_RLA, op);
+		else if(op.compare("JR") == 0) *insn = new JR(OP_JR, op);
+		else if(op.compare("RRA") == 0) *insn = new RRA(OP_RRA, op);
+		else if(op.compare("DAA") == 0) *insn = new DAA(OP_DAA, op);
+		else if(op.compare("CPL") == 0) *insn = new CPL(OP_CPL, op);
+		else if(op.compare("SCF") == 0) *insn = new SCF(OP_SCF, op);
+		else if(op.compare("CCF") == 0) *insn = new CCF(OP_CCF, op);
+		else if(op.compare("HALT") == 0) *insn = new HALT(OP_HALT, op);
+		else if(op.compare("ADC") == 0) *insn = new ADC(OP_ADC, op);
+		else if(op.compare("SUB") == 0) *insn = new SUB(OP_SUB, op);
+		else if(op.compare("SBC") == 0) *insn = new SBC(OP_SBC, op);
+		else if(op.compare("AND") == 0) *insn = new AND(OP_AND, op);
+		else if(op.compare("XOR") == 0) *insn = new XOR(OP_XOR, op);
+		else if(op.compare("OR") == 0) *insn = new OR(OP_OR, op);
+		else if(op.compare("CP") == 0) *insn = new CP(OP_CP, op);
+		else if(op.compare("RET") == 0) *insn = new RET(OP_RET, op);
+		else if(op.compare("POP") == 0) *insn = new POP(OP_POP, op);
+		else if(op.compare("JP") == 0) *insn = new JP(OP_JP, op);
+		else if(op.compare("CALL") == 0) *insn = new CALL(OP_CALL, op);
+		else if(op.compare("PUSH") == 0) *insn = new PUSH(OP_PUSH, op);
+		else if(op.compare("RST") == 0) *insn = new RST(OP_RST, op);
+		else if(op.compare("PREFIX") == 0) *insn = new PREFIX(OP_PREFIX, op);
+		else if(op.compare("RETI") == 0) *insn = new RETI(OP_RETI, op);
+		else if(op.compare("LDH") == 0) *insn = new LDH(OP_LDH, op);
+		else if(op.compare("DI") == 0) *insn = new DI(OP_DI, op);
+		else if(op.compare("EI") == 0) *insn = new EI(OP_EI, op);
+		else *insn = new INVALID(OP_INVALID, "INVALID");
 
-		// format: op,size,cycles,rd,rd_mem,rs,rs_mem,z_f,n_f,h_f,c_f
+		// format: op,size,cycles,rd,rd_mem,rs,rs_mem,z_f,n_f,h_f,c_f,insn_str
 		
 		// insn size in bytes
 		std::getline(ss, token, ',');
@@ -92,17 +92,46 @@ CPU::CPU(char* rom_name) {
 		if(token.compare("1") == 0) (*insn)->rs_mem = true;
 		else (*insn)->rs_mem = false;
 
+		// z flag
+		std::getline(ss, token, ',');
+		(*insn)->flags[FLAG_Z].val = false;
+		(*insn)->flags[FLAG_Z].flag_op = get_flag_op(token);
+		
+		// n flag
+		std::getline(ss, token, ',');
+		(*insn)->flags[FLAG_N].val = false;
+		(*insn)->flags[FLAG_N].flag_op = get_flag_op(token);
+		
+		// h flag
+		std::getline(ss, token, ',');
+		(*insn)->flags[FLAG_H].val = false;
+		(*insn)->flags[FLAG_H].flag_op = get_flag_op(token);
+		
+		// c flag
+		std::getline(ss, token, ',');
+		(*insn)->flags[FLAG_C].val = false;
+		(*insn)->flags[FLAG_C].flag_op = get_flag_op(token);
+		
+		// insn_str
+		(*insn)->insn_str = "";
+		while(std::getline(ss, token, ',')) {
+			(*insn)->insn_str += token;
+		}
+
+		//printf("(%i %i) %s\n", row, col, (*insn)->insn_str.c_str());
+
 		col = (col+1) % 16;
 		if(col == 0) row = (row+1) % 16;
 	}
 	csv_file.close();
 
 	// print insn table
-	//for(int r=0; r<16; r++) {
-	//	for(int c=0; c<16; c++) {
-	//		this->insn_table[r][c]->print();
-	//	}
-	//}
+	for(int r=0; r<16; r++) {
+		for(int c=0; c<16; c++) {
+			std::cout << this->insn_table[r][c]->insn_str << ' ';
+		}
+		std::cout << std::endl;
+	}
 
 	// initialize registers
 	for(int i=0; i<NUM_REGS; i++) {
@@ -150,7 +179,7 @@ void CPU::decode(unsigned char* bytes, int size) {
 	//reg_t rd = REG_INVALID;
 	//reg_t rs = REG_INVALID;
 
-	//// column and row from GameBoy instruction set table:
+	//// column and row from GameBoy instruction.val table:
 	//// http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
 	//
 	//unsigned char row = (opcode & ~0xF0) >> 4; // read the upper nibble

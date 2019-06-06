@@ -3,188 +3,189 @@
 
 #include <string>
 
-Insn::Insn(insn_t insn):
+Insn::Insn(op_t op, std::string op_str):
 	rd(REG_INVALID),
 	rs(REG_INVALID),
 	imm(0)
 {
-	this->insn = insn;	
+	this->op = op;
+	this->op_str = op_str;	
 }
 
 /* Instruction Classes */
 
-NOP::NOP(insn_t insn):
-	Insn(insn) 
+NOP::NOP(op_t op, std::string op_str):
+	Insn(op, op_str) 
 {
 }
 
-LD::LD(insn_t insn):
-	Insn(insn) 
+LD::LD(op_t op, std::string op_str):
+	Insn(op, op_str) 
 {
 }
 
-INC::INC(insn_t insn):
-	Insn(insn)
+INC::INC(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-DEC::DEC(insn_t insn):
-	Insn(insn)
+DEC::DEC(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
 
-RLCA::RLCA(insn_t insn):
-	Insn(insn)
+RLCA::RLCA(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-ADD::ADD(insn_t insn):
-	Insn(insn)
+ADD::ADD(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-RRCA::RRCA(insn_t insn):
-	Insn(insn)
+RRCA::RRCA(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-STOP::STOP(insn_t insn):
-	Insn(insn)
+STOP::STOP(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-RLA::RLA(insn_t insn):
-	Insn(insn)
+RLA::RLA(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-JR::JR(insn_t insn):
-	Insn(insn)
+JR::JR(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-RRA::RRA(insn_t insn):
-	Insn(insn)
+RRA::RRA(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-DAA::DAA(insn_t insn):
-	Insn(insn)
+DAA::DAA(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-CPL::CPL(insn_t insn):
-	Insn(insn)
+CPL::CPL(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-SCF::SCF(insn_t insn):
-	Insn(insn)
+SCF::SCF(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-CCF::CCF(insn_t insn):
-	Insn(insn)
+CCF::CCF(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-HALT::HALT(insn_t insn):
-	Insn(insn)
+HALT::HALT(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-ADC::ADC(insn_t insn):
-	Insn(insn)
+ADC::ADC(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-SUB::SUB(insn_t insn):
-	Insn(insn)
+SUB::SUB(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-SBC::SBC(insn_t insn):
-	Insn(insn)
+SBC::SBC(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-AND::AND(insn_t insn):
-	Insn(insn)
+AND::AND(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-XOR::XOR(insn_t insn):
-	Insn(insn)
+XOR::XOR(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-OR::OR(insn_t insn):
-	Insn(insn)
+OR::OR(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-CP::CP(insn_t insn):
-	Insn(insn)
+CP::CP(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-RET::RET(insn_t insn):
-	Insn(insn)
+RET::RET(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-POP::POP(insn_t insn):
-	Insn(insn)
+POP::POP(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-JP::JP(insn_t insn):
-	Insn(insn)
+JP::JP(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-CALL::CALL(insn_t insn):
-	Insn(insn)
+CALL::CALL(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-PUSH::PUSH(insn_t insn):
-	Insn(insn)
+PUSH::PUSH(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-RST::RST(insn_t insn):
-	Insn(insn)
+RST::RST(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-PREFIX::PREFIX(insn_t insn):
-	Insn(insn)
+PREFIX::PREFIX(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-INVALID::INVALID(insn_t insn):
-	Insn(insn)
+INVALID::INVALID(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-RETI::RETI(insn_t insn):
-	Insn(insn)
+RETI::RETI(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-LDH::LDH(insn_t insn):
-	Insn(insn)
+LDH::LDH(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-DI::DI(insn_t insn):
-	Insn(insn)
+DI::DI(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }
 
-EI::EI(insn_t insn):
-	Insn(insn)
+EI::EI(op_t op, std::string op_str):
+	Insn(op, op_str)
 {
 }

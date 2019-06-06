@@ -5,48 +5,49 @@
 
 #include "Reg.h"
 
-enum insn_t {
-	INSN_NOP,
-	INSN_LD,
-	INSN_INC,
-	INSN_DEC,
-	INSN_RLCA,
-	INSN_ADD,
-	INSN_RRCA,
-	INSN_STOP,
-	INSN_RLA,
-	INSN_JR,
-	INSN_RRA,
-	INSN_DAA,
-	INSN_CPL,
-	INSN_SCF,
-	INSN_CCF,
-	INSN_HALT,
-	INSN_ADC,
-	INSN_SUB,
-	INSN_SBC,
-	INSN_AND,
-	INSN_XOR,
-	INSN_OR,
-	INSN_CP,
-	INSN_RET,
-	INSN_POP,
-	INSN_JP,
-	INSN_CALL,
-	INSN_PUSH,
-	INSN_RST,
-	INSN_PREFIX,
-	INSN_INVALID,
-	INSN_RETI,
-	INSN_LDH,
-	INSN_DI,
-	INSN_EI
+enum op_t {
+	OP_NOP,
+	OP_LD,
+	OP_INC,
+	OP_DEC,
+	OP_RLCA,
+	OP_ADD,
+	OP_RRCA,
+	OP_STOP,
+	OP_RLA,
+	OP_JR,
+	OP_RRA,
+	OP_DAA,
+	OP_CPL,
+	OP_SCF,
+	OP_CCF,
+	OP_HALT,
+	OP_ADC,
+	OP_SUB,
+	OP_SBC,
+	OP_AND,
+	OP_XOR,
+	OP_OR,
+	OP_CP,
+	OP_RET,
+	OP_POP,
+	OP_JP,
+	OP_CALL,
+	OP_PUSH,
+	OP_RST,
+	OP_PREFIX,
+	OP_INVALID,
+	OP_RETI,
+	OP_LDH,
+	OP_DI,
+	OP_EI
 };
 
 class Insn {
 	public:
-		//std::string op_str; // name of the instruction (ex. 'LD')
-		insn_t insn;
+		op_t op;
+		std::string op_str;
+		std::string insn_str; // full insn, with opcode and operands ; for debugging
 		unsigned char* bytes; // raw bytes 
 		int size; // in bytes
 
@@ -58,13 +59,10 @@ class Insn {
 	
 		int cycles; // duration
 
-		// flags that this instruction modifies
-		flag_op_t z_f;
-		flag_op_t n_f;
-		flag_op_t h_f;
-		flag_op_t c_f;
+		// z, n, h, c
+		flag_t flags[4];	
 
-		Insn(insn_t insn);
+		Insn(op_t op, std::string op_str);
 		~Insn();
 };
 
@@ -72,213 +70,213 @@ class Insn {
 
 class NOP : public Insn {
 	public:
-		NOP(insn_t insn);
+		NOP(op_t op, std::string op_str);
 		~NOP();
 };
 
 // loads
 class LD : public Insn {
 	public:
-		LD(insn_t insn);
+		LD(op_t op, std::string op_str);
 		~LD();
 };
 
 class INC : public Insn {
 	public:
-		INC(insn_t insn);
+		INC(op_t op, std::string op_str);
 		~INC();
 };
 
 class DEC : public Insn {
 	public:
-		DEC(insn_t insn);
+		DEC(op_t op, std::string op_str);
 		~DEC();
 };
 
 // rotate left
 class RLCA : public Insn {
 	public:
-		RLCA(insn_t insn);
+		RLCA(op_t op, std::string op_str);
 		~RLCA();
 };
 
 class ADD : public Insn {
 	public:
-		ADD(insn_t insn);
+		ADD(op_t op, std::string op_str);
 		~ADD();
 };
 
 class RRCA : public Insn {
 	public:
-		RRCA(insn_t insn);
+		RRCA(op_t op, std::string op_str);
 		~RRCA();
 };
 
 class STOP : public Insn {
 	public:
-		STOP(insn_t insn);
+		STOP(op_t op, std::string op_str);
 		~STOP();
 };
 
 class RLA : public Insn {
 	public:
-		RLA(insn_t insn);
+		RLA(op_t op, std::string op_str);
 		~RLA();
 };
 
 class JR : public Insn {
 	public:
-		JR(insn_t insn);
+		JR(op_t op, std::string op_str);
 		~JR();
 };
 
 class RRA : public Insn {
 	public:
-		RRA(insn_t insn);
+		RRA(op_t op, std::string op_str);
 		~RRA();
 };
 
 class DAA : public Insn {
 	public:
-		DAA(insn_t insn);
+		DAA(op_t op, std::string op_str);
 		~DAA();
 };
 
 class CPL : public Insn {
 	public:
-		CPL(insn_t insn);
+		CPL(op_t op, std::string op_str);
 		~CPL();
 };
 
 class SCF : public Insn {
 	public:
-		SCF(insn_t insn);
+		SCF(op_t op, std::string op_str);
 		~SCF();
 };
 
 class CCF : public Insn {
 	public:
-		CCF(insn_t insn);
+		CCF(op_t op, std::string op_str);
 		~CCF();
 };
 
 class HALT : public Insn {
 	public:
-		HALT(insn_t insn);
+		HALT(op_t op, std::string op_str);
 		~HALT();
 };
 
 class ADC : public Insn {
 	public:
-		ADC(insn_t insn);
+		ADC(op_t op, std::string op_str);
 		~ADC();
 };
 
 class SUB : public Insn {
 	public:
-		SUB(insn_t insn);
+		SUB(op_t op, std::string op_str);
 		~SUB();
 };
 
 class SBC : public Insn {
 	public:
-		SBC(insn_t insn);
+		SBC(op_t op, std::string op_str);
 		~SBC();
 };
 
 class AND : public Insn {
 	public:
-		AND(insn_t insn);
+		AND(op_t op, std::string op_str);
 		~AND();
 };
 
 class XOR : public Insn {
 	public:
-		XOR(insn_t insn);
+		XOR(op_t op, std::string op_str);
 		~XOR();
 };
 
 class OR : public Insn {
 	public:
-		OR(insn_t insn);
+		OR(op_t op, std::string op_str);
 		~OR();
 };
 
 class CP : public Insn {
 	public:
-		CP(insn_t insn);
+		CP(op_t op, std::string op_str);
 		~CP();
 };
 
 class RET : public Insn {
 	public:
-		RET(insn_t insn);
+		RET(op_t op, std::string op_str);
 		~RET();
 };
 
 class POP : public Insn {
 	public:
-		POP(insn_t insn);
+		POP(op_t op, std::string op_str);
 		~POP();
 };
 
 class JP : public Insn {
 	public:
-		JP(insn_t insn);
+		JP(op_t op, std::string op_str);
 		~JP();
 };
 
 class CALL : public Insn {
 	public:
-		CALL(insn_t insn);
+		CALL(op_t op, std::string op_str);
 		~CALL();
 };
 
 class PUSH : public Insn {
 	public:
-		PUSH(insn_t insn);
+		PUSH(op_t op, std::string op_str);
 		~PUSH();
 };
 
 class RST : public Insn {
 	public:
-		RST(insn_t insn);
+		RST(op_t op, std::string op_str);
 		~RST();
 };
 
 class PREFIX : public Insn {
 	public:
-		PREFIX(insn_t insn);
+		PREFIX(op_t op, std::string op_str);
 		~PREFIX();
 };
 
 class INVALID : public Insn {
 	public:
-		INVALID(insn_t insn);
+		INVALID(op_t op, std::string op_str);
 		~INVALID();
 };
 
 class RETI : public Insn {
 	public:
-		RETI(insn_t insn);
+		RETI(op_t op, std::string op_str);
 		~RETI();
 };
 
 class LDH : public Insn {
 	public:
-		LDH(insn_t insn);
+		LDH(op_t op, std::string op_str);
 		~LDH();
 };
 
 class DI : public Insn {
 	public:
-		DI(insn_t insn);
+		DI(op_t op, std::string op_str);
 		~DI();
 };
 
 class EI : public Insn {
 	public:
-		EI(insn_t insn);
+		EI(op_t op, std::string op_str);
 		~EI();
 };
 

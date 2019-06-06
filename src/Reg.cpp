@@ -40,3 +40,14 @@ reg_t get_reg(std::string token) {
 	
 	return reg;	
 }
+
+flag_op_t get_flag_op(std::string token) {
+	
+	flag_op_t flag_op = FLAG_OP_INVALID;
+	if(token.compare("-") == 0) flag_op = FLAG_OP_NONE;
+	else if(token.compare("0") == 0) flag_op = FLAG_OP_RESET;
+	else if(token.compare("1") == 0) flag_op = FLAG_OP_SET;
+	else if(token.compare("Z") == 0 || token.compare("H") == 0 ||token.compare("N") == 0 || token.compare("C") == 0) flag_op = FLAG_OP_EXEC;
+
+	return flag_op;
+}

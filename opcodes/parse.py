@@ -23,7 +23,7 @@ with open(html_file) as fp:
     fp.close()
 
 # write .csv header
-csv_file.writerow(['op', 'size', 'cycles', 'rd', 'rd_mem', 'rs', 'rs_mem', 'z_f', 'n_f', 'h_f', 'c_f'])
+csv_file.writerow(['op', 'size', 'cycles', 'rd', 'rd_mem', 'rs', 'rs_mem', 'z_f', 'n_f', 'h_f', 'c_f', 'insn_str'])
 
 # get intruction set table
 table = opcodes.find_all('table')[0].find('tbody')
@@ -46,8 +46,9 @@ for i, row in enumerate(rows):
         if len(text) != 3:
             csv_file.writerow(['INVALID', -1, -1, -1, -1, -1, -1, -1, -1, -1, -1])
             continue # empty cell ; invalid opcode
-     
-        insn = text[0].split(' ')
+    
+        insn_str = text[0]
+        insn = insn_str.split(' ')
         op = insn[0]
         rd = None
         rs = None
@@ -75,6 +76,6 @@ for i, row in enumerate(rows):
         c_f = flags[3]
 
         # print('(%i, %i) op: %s, size: %s, cycles: %s, flags: (%s, %s, %s, %s)' % (i-1, j-1, op, size, cycles, z_f, n_f, h_f, c_f))
-        csv_file.writerow([op, size, cycles, rd, rd_mem, rs, rs_mem, z_f, n_f, h_f, c_f])
+        csv_file.writerow([op, size, cycles, rd, rd_mem, rs, rs_mem, z_f, n_f, h_f, c_f, insn_str])
 
 out_file.close()
