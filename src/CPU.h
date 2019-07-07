@@ -25,7 +25,7 @@ class CPU {
 		// constructor
 		CPU(char* rom_name);
 		
-		void decode(unsigned char* bytes, int size); // size in bytes
+		void decode(unsigned char* code, int code_size, int pc);
 
 		// destructor
 		~CPU();

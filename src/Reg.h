@@ -14,8 +14,8 @@ enum reg_t {
 	REG_CB,
 	REG_D,
 	REG_DE,
-	REG_D8,
-	REG_D16,
+	REG_d8, // not a reg ; 8-bit immediate
+	REG_d16, // not a reg ; 16-bit immediate 
 	REG_E,
 	REG_F, // flag register
 	REG_H,
@@ -33,7 +33,7 @@ enum reg_t {
 	REG_L,
 	REG_NZ,
 	REG_NC,
-	REG_R8,
+	REG_R8, // not a reg ; 8-bit signed value added to SP
 	REG_SP,
 	REG_SP_R8, // why???
 	REG_Z,
@@ -62,7 +62,8 @@ struct flag_t {
 #define FLAG_H 2
 #define FLAG_C 3
 
-reg_t get_reg(std::string token);
+reg_t str_to_reg(std::string token);
+std::string reg_to_str(reg_t reg);
 flag_op_t get_flag_op(std::string token);
 
 #endif // GB_REG_H

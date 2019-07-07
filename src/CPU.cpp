@@ -3,6 +3,7 @@
 #include <fstream> // reading files
 #include <sstream> // tokenizing opcodes
 #include <string> // getline
+#include <assert.h>
 
 #include "CPU.h"
 #include "Insn.h"
@@ -10,6 +11,11 @@
 CPU::CPU(char* rom_name) {
 	// create the instruction.val table from opcodes.csv
 	std::ifstream csv_file("opcodes.csv");
+	if(!csv_file) {
+		printf("Failed to open opcodes.csv\n");
+		return;
+	}
+	
 	std::string line;
 	int line_num = -1; 
 	std::string op;
@@ -19,7 +25,7 @@ CPU::CPU(char* rom_name) {
 		line_num++;
 		if(line_num == 0) continue; // ignore the header
 		
-		// format: op,size,cycles,rd,rd_mem,rs,rs_mem,z_f,n_f,h_f,c_f,insn_str
+		// line format: op,size,cycles,rd,rd_mem,rs,rs_mem,z_f,n_f,h_f,c_f,insn_str
 		std::istringstream ss(line);
 		std::string token;
 		
@@ -76,7 +82,7 @@ CPU::CPU(char* rom_name) {
 
 		// target register rd
 		std::getline(ss, token, ',');
-		(*insn)->rd = get_reg(token);
+		(*insn)->rd = str_to_reg(token);
 
 		// rd_mem
 		std::getline(ss, token, ',');
@@ -85,7 +91,7 @@ CPU::CPU(char* rom_name) {
 
 		// source register rs
 		std::getline(ss, token, ',');
-		(*insn)->rs = get_reg(token);
+		(*insn)->rs = str_to_reg(token);
 		
 		// rs_mem
 		std::getline(ss, token, ',');
@@ -173,21 +179,55 @@ CPU::CPU(char* rom_name) {
 }
 
 // decodes one instruction
-void CPU::decode(unsigned char* bytes, int size) {
+void CPU::decode(unsigned char* code, int code_size, int pc) {
 	
-	unsigned char opcode = bytes[0];
-	reg_t rd = REG_INVALID;
-	reg_t rs = REG_INVALID;
-
+	unsigned char opcode = code[pc];
+	
 	// row and column from GameBoy instruction.val table:
 	// http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
 	
-	unsigned char row = (opcode & ~0xF0) >> 4; // read the upper nibble
-	unsigned char col = opcode & ~0x0F; // read the lower nibble
+	unsigned char row = (opcode & 0xF0) >> 4; // read the upper nibble
+	unsigned char col = opcode & 0x0F; // read the lower nibble
 	Insn* insn = this->insn_table[row][col];
-	printf("row=%i, col=%i\n", row, col);
-	printf("opcode %02x, rd=%i, %s\n", opcode, rd, insn->insn_str.c_str());
+	reg_t rd = insn->rd;
+	reg_t rs = insn->rs;
+	
+	// get immediate value, if any	
+	switch(rs) {
+		case REG_d8:
+			;
+			assert(insn->size == 2 && pc+1 < code_size);
+			insn->imm = code[pc+1];
+			break;
+		case REG_d16:
+			;
+			assert(insn->size == 3 && pc+2 < code_size);
+			insn->imm = 0x0000;
+			insn->imm |= code[pc+1];
+			insn->imm = insn->imm << 8;
+			insn->imm |= code[pc+2];
+			break;
+		default:
+			printf("No immediate value.\n");
+			break; // no immediate value
+	}
 
+	printf("row=%i, col=%i\n", row, col);
+	// starts to overwrite itself if I print "imm" after insn_str... weird
+	printf(
+		"opcode %02x,"
+		"rd=%s,"
+		"rs=%s,"
+		"imm=%i,"
+		"size=%i bytes,"
+		"%s\n",
+		opcode,
+		reg_to_str(rd).c_str(),
+		reg_to_str(rs).c_str(),
+		insn->imm,
+		insn->size,
+		insn->insn_str.c_str()
+	);
 }
 
 CPU::~CPU() {
