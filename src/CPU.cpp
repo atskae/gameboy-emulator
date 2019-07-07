@@ -126,12 +126,12 @@ CPU::CPU(char* rom_name) {
 	csv_file.close();
 
 	// print insn table
-	for(int r=0; r<16; r++) {
-		for(int c=0; c<16; c++) {
-			std::cout << this->insn_table[r][c]->insn_str << ' ';
-		}
-		std::cout << std::endl;
-	}
+	//for(int r=0; r<16; r++) {
+	//	for(int c=0; c<16; c++) {
+	//		std::cout << this->insn_table[r][c]->insn_str << std::endl;
+	//	}
+	//	std::cout << std::endl;
+	//}
 
 	// initialize registers
 	for(int i=0; i<NUM_REGS; i++) {
@@ -175,16 +175,18 @@ CPU::CPU(char* rom_name) {
 // decodes one instruction
 void CPU::decode(unsigned char* bytes, int size) {
 	
-	//unsigned char opcode = bytes[0];
-	//reg_t rd = REG_INVALID;
-	//reg_t rs = REG_INVALID;
+	unsigned char opcode = bytes[0];
+	reg_t rd = REG_INVALID;
+	reg_t rs = REG_INVALID;
 
-	//// column and row from GameBoy instruction.val table:
-	//// http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
-	//
-	//unsigned char row = (opcode & ~0xF0) >> 4; // read the upper nibble
-	//unsigned char col = opcode & ~0x0F; // read the lower nibble
-	//printf("opcode %02x, rd=%i\n", opcode, rd);
+	// row and column from GameBoy instruction.val table:
+	// http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
+	
+	unsigned char row = (opcode & ~0xF0) >> 4; // read the upper nibble
+	unsigned char col = opcode & ~0x0F; // read the lower nibble
+	Insn* insn = this->insn_table[row][col];
+	printf("row=%i, col=%i\n", row, col);
+	printf("opcode %02x, rd=%i, %s\n", opcode, rd, insn->insn_str.c_str());
 
 }
 
