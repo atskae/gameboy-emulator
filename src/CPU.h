@@ -3,10 +3,8 @@
 
 #include "Insn.h"
 
-struct rom_t {
-	char* bytes;
-	int size; // in bytes
-};
+#define MEMORY_SIZE 0xFFFF // p,8
+#define ROM_START_ADDR 0x0100 // p.10
 
 class CPU {
 
@@ -18,14 +16,16 @@ class CPU {
 		unsigned char regs[NUM_REGS]; // 8-bit registers ; use enum reg to index into regs[]
 		unsigned short sp; // 16-bit stack pointer 
 		unsigned short pc; // 16-bit program counter
-	
-		rom_t rom; // gameboy cartridge
+
+		char memory[MEMORY_SIZE];	
+		int rom_size; // in bytes
 
 	public:
 		// constructor
 		CPU(char* rom_name);
-		
-		void decode(unsigned char* code, int code_size, int pc);
+	
+		// methods	
+		Insn decode(); // decodes 1 instruction at pc
 
 		// destructor
 		~CPU();

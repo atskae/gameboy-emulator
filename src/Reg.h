@@ -6,8 +6,8 @@
 enum reg_t {
 	REG_A,
 	REG_AF,
-	REG_A8,
-	REG_A16,
+	REG_a8, // 8-bit effective address
+	REG_a16, // 16-bit effective address
 	REG_B,
 	REG_BC,
 	REG_C,
@@ -33,7 +33,7 @@ enum reg_t {
 	REG_L,
 	REG_NZ,
 	REG_NC,
-	REG_R8, // not a reg ; 8-bit signed value added to SP
+	REG_r8, // not a reg ; 8-bit signed value added to SP
 	REG_SP,
 	REG_SP_R8, // why???
 	REG_Z,

@@ -46,9 +46,9 @@ enum op_t {
 class Insn {
 	public:
 		op_t op;
-		std::string op_str;
-		std::string insn_str; // full insn, with opcode and operands ; for debugging
-		unsigned char* bytes; // raw bytes 
+		std::string op_str; // opcode in human-readable format
+		std::string insn_str; // opcode and operands in human-readable format ; for debugging
+		unsigned char bytes[4]; // raw bytes of entire insn ; for debugging
 		int size; // in bytes
 
 		reg_t rd; // target register
@@ -56,6 +56,8 @@ class Insn {
 		bool rd_mem; // if True, dereference rd
 		bool rs_mem; // if True, dereference rs
 		unsigned short imm; // immediate 8-bit or 16-bit data
+		unsigned char offset_pc; // value to be added to pc
+		unsigned short addref; // effective address (operand that is an address)
 	
 		int cycles; // duration
 
@@ -63,6 +65,9 @@ class Insn {
 		flag_t flags[4];	
 
 		Insn(op_t op, std::string op_str);
+
+		void print();		
+
 		~Insn();
 };
 

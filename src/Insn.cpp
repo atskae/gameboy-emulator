@@ -2,6 +2,7 @@
 #include "Reg.h"
 
 #include <string>
+#include <iostream>
 
 Insn::Insn(op_t op, std::string op_str):
 	rd(REG_INVALID),
@@ -10,6 +11,20 @@ Insn::Insn(op_t op, std::string op_str):
 {
 	this->op = op;
 	this->op_str = op_str;	
+}
+
+void Insn::print() {
+	printf("%s | ", this->insn_str.c_str());
+	// printf("%i, ", this->size);
+	for(int i=0; i<this->size; i++) {
+		printf("%02x ", this->bytes[i]);
+	}
+	printf("\n");
+}
+
+// destructor
+Insn::~Insn() {
+
 }
 
 /* Instruction Classes */

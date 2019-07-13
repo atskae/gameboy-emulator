@@ -121,8 +121,12 @@ CPU::CPU(char* rom_name) {
 		// insn_str
 		(*insn)->insn_str = "";
 		while(std::getline(ss, token, ',')) {
-			(*insn)->insn_str += token;
+ 			// '\r' causes the cursor to move to beginning when printing ; remove to printf() correctly
+			token.erase( std::remove(token.begin(), token.end(), '\r'), token.end() );
+			token.erase( std::remove(token.begin(), token.end(), '\"'), token.end() );
+			(*insn)->insn_str += (token + ",");
 		}
+		(*insn)->insn_str.pop_back(); // remove extra comma
 
 		//printf("(%i %i) %s\n", row, col, (*insn)->insn_str.c_str());
 
@@ -144,9 +148,9 @@ CPU::CPU(char* rom_name) {
 		regs[i] = 0;
 	}
 	// initial values on power up
-	sp = 0xFFFE;
-	pc = 0x0100;
-	this->rom.bytes = nullptr;
+	sp = 0xFFFE; // p.64
+	pc = 0x0100; // p.63 ; where the ROM is loaded
+	memset(this->memory, 0, MEMORY_SIZE);
 
 	// load ROM
 	std::ifstream rom_file(rom_name, std::ifstream::binary);
@@ -157,83 +161,95 @@ CPU::CPU(char* rom_name) {
 
 	// get ROM size
 	rom_file.seekg(0, std::ios::end); // go to end of file
-	this->rom.size = rom_file.tellg();
-	printf("%s (%i bytes)\n", rom_name, this->rom.size);
+	this->rom_size = rom_file.tellg();
+	printf("%s (%i bytes)\n", rom_name, this->rom_size);
 	rom_file.seekg(0, std::ios::beg); // go back to beginning
-
-	this->rom.bytes = new char[this->rom.size];
-	rom_file.read(this->rom.bytes, this->rom.size);
-	if(!this->rom.bytes) {
-		printf("Failed to read %s\n", rom_name);
-		delete[] this->rom.bytes;
-		return;
-	}
-
+	rom_file.read(&this->memory[ROM_START_ADDR], this->rom_size); // read in file into memory
+	rom_file.close();
+	
 	// print out bytes
-	for(int i=0; i<this->rom.size; i++) {
+	for(int i=ROM_START_ADDR; i<ROM_START_ADDR + this->rom_size; i++) {
 		if(i % 32 == 0 && i != 0) printf("\n");
-		printf("%02x ", (unsigned char) this->rom.bytes[i]);
+		printf("%02x ", (unsigned char) this->memory[i]);
 	}
 	printf("\n");
 
 }
 
-// decodes one instruction
-void CPU::decode(unsigned char* code, int code_size, int pc) {
+// decodes one instruction at insn pointed by pc
+Insn CPU::decode() {
 	
-	unsigned char opcode = code[pc];
+	unsigned char opcode = memory[this->pc];
 	
 	// row and column from GameBoy instruction.val table:
 	// http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
 	
 	unsigned char row = (opcode & 0xF0) >> 4; // read the upper nibble
 	unsigned char col = opcode & 0x0F; // read the lower nibble
-	Insn* insn = this->insn_table[row][col];
-	reg_t rd = insn->rd;
-	reg_t rs = insn->rs;
-	
+	Insn insn = *insn_table[row][col]; // create a copy
+
+	// obtain raw bytes
+	for(int i=0; i<insn.size; i++) {
+		insn.bytes[i] = memory[this->pc + i];
+	}
+
 	// get immediate value, if any	
-	switch(rs) {
+	switch(insn.rs) { // rs = source operand
 		case REG_d8:
 			;
-			assert(insn->size == 2 && pc+1 < code_size);
-			insn->imm = code[pc+1];
+			assert(insn.size == 2 && pc+1 < ROM_START_ADDR + rom_size);
+			insn.imm = memory[pc+1];
 			break;
 		case REG_d16:
 			;
-			assert(insn->size == 3 && pc+2 < code_size);
-			insn->imm = 0x0000;
-			insn->imm |= code[pc+1];
-			insn->imm = insn->imm << 8;
-			insn->imm |= code[pc+2];
+			assert(insn.size == 3 && pc+2 < ROM_START_ADDR + rom_size);
+			insn.imm = 0x0000;
+			insn.imm |= memory[pc+1];
+			insn.imm = insn.imm << 8;
+			insn.imm |= memory[pc+2];
+			break;
+		case REG_r8: // 8-bit unsigned data to be added to pc
+			;
+			assert(insn.size == 2 && pc+1 < ROM_START_ADDR + rom_size);
+			insn.offset_pc = memory[pc+1];
+			break;
+		case REG_a8:
+			;
+			assert(insn.size == 2 && pc+1 < ROM_START_ADDR + rom_size);
+			insn.addref = memory[pc+1];
+			break;
+		case REG_a16:
+			;
+			assert(insn.size == 3 && pc+2 < ROM_START_ADDR + rom_size);
+			insn.addref = 0x0000;
+			insn.addref |= memory[pc+1];
+			insn.addref = insn.addref << 8;
+			insn.addref |= memory[pc+2];
 			break;
 		default:
 			printf("No immediate value.\n");
 			break; // no immediate value
 	}
 
-	printf("row=%i, col=%i\n", row, col);
-	// starts to overwrite itself if I print "imm" after insn_str... weird
-	printf(
-		"opcode %02x,"
-		"rd=%s,"
-		"rs=%s,"
-		"imm=%i,"
-		"size=%i bytes,"
-		"%s\n",
-		opcode,
-		reg_to_str(rd).c_str(),
-		reg_to_str(rs).c_str(),
-		insn->imm,
-		insn->size,
-		insn->insn_str.c_str()
-	);
+	//printf("row=%i, col=%i\n", row, col);
+	//// starts to overwrite itself if I print "imm" after insn_str... weird
+	//printf(
+	//	"opcode %02x,"
+	//	"rd=%s,"
+	//	"rs=%s,"
+	//	"imm=%i,"
+	//	"size=%i bytes,"
+	//	"%s\n",
+	//	opcode,
+	//	reg_to_str(rd).c_str(),
+	//	reg_to_str(rs).c_str(),
+	//	insn.imm,
+	//	insn.size,
+	//	insn.insn_str.c_str()
+	//);
+	return insn;
 }
 
 CPU::~CPU() {
-	if(this->rom.bytes) {
-		printf("Deleting ROM\n");
-		delete[] this->rom.bytes;
-	}
 	printf("CPU destructed.\n");
 }

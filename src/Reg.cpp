@@ -7,8 +7,8 @@ reg_t str_to_reg(std::string token) {
 	reg_t reg = REG_INVALID;
 	if(token.compare("A") == 0) reg = REG_A;
 	else if(token.compare("AF") == 0) reg = REG_AF;
-	else if(token.compare("a8") == 0) reg = REG_A8;
-	else if(token.compare("a16") == 0) reg = REG_A16;
+	else if(token.compare("a8") == 0) reg = REG_a8;
+	else if(token.compare("a16") == 0) reg = REG_a16;
 	else if(token.compare("B") == 0) reg = REG_B;
 	else if(token.compare("BC") == 0) reg = REG_BC;
 	else if(token.compare("C") == 0) reg = REG_C;
@@ -25,7 +25,7 @@ reg_t str_to_reg(std::string token) {
 	else if(token.compare("L") == 0) reg = REG_L;
 	else if(token.compare("NC") == 0) reg = REG_NC;
 	else if(token.compare("NZ") == 0) reg = REG_NZ;
-	else if(token.compare("r8") == 0) reg = REG_R8;
+	else if(token.compare("r8") == 0) reg = REG_r8;
 	else if(token.compare("SP") == 0) reg = REG_SP;
 	else if(token.compare("SP+r8") == 0) reg = REG_SP_R8;
 	else if(token.compare("00H") == 0) reg = REG_00H;
@@ -47,9 +47,9 @@ std::string reg_to_str(reg_t reg) {
 			return "A";
 		case REG_AF:
 			return "AF";
-		case REG_A8:
+		case REG_a8:
 			return "a8";
-		case REG_A16:
+		case REG_a16:
 			return "a16";
 		case REG_B:
 			return "B";
@@ -83,7 +83,7 @@ std::string reg_to_str(reg_t reg) {
 			return "NC";
 		case REG_NZ:
 			return "NZ";
-		case REG_R8:
+		case REG_r8:
 			return "r8";
 		case REG_SP:
 			return "SP";
