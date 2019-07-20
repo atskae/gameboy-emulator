@@ -6,10 +6,10 @@
 enum operand_t {
 	
 	// general purpose registers
-	REG_AF,
-	REG_BC,
-	REG_DE,
-	REG_HL,
+	REG_AF=0,
+	REG_BC=1,
+	REG_DE=2,
+	REG_HL=3,
 	
 	REG_A,
 	REG_B,
@@ -54,7 +54,14 @@ enum operand_t {
 	
 	// CB prefix
 	PREFIX_CB,
-
+	
+	// operand groups
+	OPERAND_REG,
+	OPERAND_IMM,
+	OPERAND_EA,
+	OPERAND_FLAGS,
+	OPERAND_PREFIX,
+	
 	OPERAND_INVALID
 };
 
@@ -82,5 +89,10 @@ struct flag_t {
 operand_t str_to_operand(std::string token);
 std::string operand_to_str(operand_t operand);
 flag_op_t get_flag_op(std::string token);
+operand_t get_operand_type(operand_t operand);
+
+operand_t get_parent_reg(operand_t reg);
+operand_t get_upper_reg(operand_t reg);
+operand_t get_lower_reg(operand_t reg);
 
 #endif // GB_OPERAND_H

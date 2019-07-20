@@ -107,6 +107,17 @@ std::string operand_to_str(operand_t operand) {
 			return "38H";
 		case FLAGS_Z:
 			return "Z";
+		// operand groups
+		case OPERAND_REG:
+			return "OPERAND_REG";
+		case OPERAND_IMM:
+			return "OPERAND_IMM";
+		case OPERAND_EA:
+			return "OPERAND_EA";
+		case OPERAND_FLAGS:
+			return "OPERAND_FLAGS";
+		case OPERAND_PREFIX:
+			return "OPERAND_PREFIX";
 		default:
 			printf("Unknown operand.\n");
 			break;
@@ -124,4 +135,108 @@ flag_op_t get_flag_op(std::string token) {
 	else if(token.compare("Z") == 0 || token.compare("H") == 0 ||token.compare("N") == 0 || token.compare("C") == 0) flag_op = FLAG_OP_EXEC;
 
 	return flag_op;
+}
+
+operand_t get_operand_type(operand_t operand) {
+	operand_t type = OPERAND_INVALID;
+	
+	switch(operand) {
+		case OPERAND_REG:
+		case REG_AF:
+		case REG_BC:
+		case REG_DE:
+		case REG_HL:
+		case REG_A:
+		case REG_B:
+		case REG_C:
+		case REG_D:
+		case REG_E:
+		case REG_F:
+		case REG_H:
+		case REG_L:
+		case REG_SP:
+		case REG_SP_R8:
+		case REG_HL_P:
+		case REG_HL_M:
+			type = OPERAND_REG;
+			break;
+		case OPERAND_IMM:
+		case IMM_d8:
+		case IMM_d16:
+		case IMM_r8:
+		case IMM_00H:
+		case IMM_08H:
+		case IMM_10H:
+		case IMM_18H:
+		case IMM_20H:
+		case IMM_28H:
+		case IMM_30H:
+		case IMM_38H:
+			type = OPERAND_IMM;
+			break;
+		case OPERAND_EA:
+		case EA_a8: 
+		case EA_a16:
+			type = OPERAND_EA;
+			break;
+		case OPERAND_FLAGS:
+		case FLAGS_NZ:
+		case FLAGS_NC:
+		case FLAGS_Z:
+			type = OPERAND_FLAGS;
+			break;
+		default:
+			break;
+	}
+	
+	return type;
+}
+
+operand_t get_parent_reg(operand_t reg) {
+	switch(reg) {
+		case REG_A:
+		case REG_F:
+			return REG_AF;
+		case REG_B:
+		case REG_C:
+			return REG_BC;
+		case REG_D:
+		case REG_E:
+			return REG_DE;
+		case REG_H:
+		case REG_L:
+			return REG_HL;
+		default:
+			return reg;
+	}
+}
+
+operand_t get_upper_reg(operand_t reg) {
+	switch(reg) {
+		case REG_AF:
+			return REG_A;
+		case REG_BC:
+			return REG_B;
+		case REG_DE:
+			return REG_D;
+		case REG_HL:
+			return REG_H;
+		default:
+			return reg;
+	}
+}
+
+operand_t get_lower_reg(operand_t reg) {
+	switch(reg) {
+		case REG_AF:
+			return REG_F;
+		case REG_BC:
+			return REG_C;
+		case REG_DE:
+			return REG_E;
+		case REG_HL:
+			return REG_L;
+		default:
+			return reg;
+	}
 }

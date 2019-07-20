@@ -25,6 +25,11 @@ int main(int argc, char* argv[]) {
 		Insn insn = cpu.decode();	
 		insn.print();
 	}
+
+	// test get_operand_type
+	//operand_t op = EA_a16;
+	//operand_t type = get_operand_type(op);
+	//printf("operand type %s\n", operand_to_str(type).c_str());
 	
 	return 0;
 }

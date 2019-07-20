@@ -15,7 +15,7 @@ class CPU {
 		Insn* insn_table[16][16];
 
 		// registers (p.61)
-		unsigned char regs[NUM_REGS]; // 8-bit registers ; use enum reg to index into regs[]
+		unsigned short regs[NUM_REGS/2]; // 8-bit registers ; use enum reg to index into regs[]
 		unsigned short sp; // 16-bit stack pointer 
 		unsigned short pc; // 16-bit program counter
 
@@ -27,7 +27,9 @@ class CPU {
 		CPU(const char* rom_name);
 	
 		// methods	
+		unsigned short read_reg(operand_t reg);
 		Insn decode(); // decodes 1 instruction at pc
+		void execute(Insn insn);
 
 		// destructor
 		~CPU();

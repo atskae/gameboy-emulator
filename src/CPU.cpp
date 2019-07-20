@@ -175,6 +175,34 @@ CPU::CPU(const char* rom_name) {
 
 }
 
+unsigned short CPU::read_reg(operand_t reg) {
+	
+	if(get_operand_type(reg) != OPERAND_REG) return 0;
+	
+	switch(reg) {
+		case REG_AF:
+		case REG_BC:
+		case REG_DE:
+		case REG_HL:
+			return this->regs[reg];
+		// upper nibble
+		case REG_A:
+		case REG_B:
+		case REG_D:
+		case REG_H:
+			return this->regs[get_parent_reg(reg)] & 0xFF00;
+		// lower nibble
+		case REG_F:
+		case REG_C:
+		case REG_E:
+		case REG_L:
+			return this->regs[get_parent_reg(reg)] & 0x00FF;
+		default:
+			return 0;
+	}
+
+}
+
 // decodes one instruction at insn pointed by pc
 Insn CPU::decode() {
 	
@@ -274,6 +302,43 @@ Insn CPU::decode() {
 	//	insn.insn_str.c_str()
 	//);
 	return insn;
+}
+
+void CPU::execute(Insn insn) {
+	
+	// get source value
+	unsigned short src = 0;
+	switch(get_operand_type(insn.src)) {
+		case OPERAND_REG:
+			;
+			src = this->read_reg(insn.src);
+			if(insn.rs_mem) { // dereference the value
+				src = this->memory[src];
+			}
+			break;
+		case OPERAND_IMM:
+			if(insn.src == IMM_r8) src = insn.offset_pc;
+			else src = insn.imm;
+			break;
+		case OPERAND_EA:
+			src = insn.ea;
+			break;
+		case OPERAND_FLAGS:
+			printf("Didn't implement obtaining flag values as source operand.\n");
+			break;
+		default:
+			break;
+	}
+
+	// no need to have insn classes if we use switch-statement...
+	switch(insn.op) {
+		case OP_NOP:
+			break;
+		case OP_LD:
+			break;
+		default:
+			break;
+	}
 }
 
 CPU::~CPU() {
