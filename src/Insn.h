@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "Reg.h"
+#include "Operand.h"
 
 enum op_t {
 	OP_NOP,
@@ -51,13 +51,18 @@ class Insn {
 		unsigned char bytes[4]; // raw bytes of entire insn ; for debugging
 		int size; // in bytes
 
-		reg_t rd; // target register
-		reg_t rs; // source register
+		unsigned short pc;	
+		//reg_t rd; // target register
+		//reg_t rs; // source register
+		operand_t des; // destination
+		operand_t src; // source
+
 		bool rd_mem; // if True, dereference rd
 		bool rs_mem; // if True, dereference rs
-		unsigned short imm; // immediate 8-bit or 16-bit data
-		unsigned char offset_pc; // value to be added to pc
-		unsigned short addref; // effective address (operand that is an address)
+		
+		unsigned short imm; // immediate 8-bit or 16-bit data 
+		char offset_pc; // 8-bit value to be added to pc
+		unsigned short ea; // effective address
 	
 		int cycles; // duration
 

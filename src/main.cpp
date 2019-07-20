@@ -9,14 +9,22 @@ void printUsage() {
 
 int main(int argc, char* argv[]) {
 	std::cout << "GameBoy Emulator" << std::endl;
-	if(argc < 2) {
-		printUsage();
-		return 1;
-	}
+	//if(argc < 2) {
+	//	printUsage();
+	//	return 1;
+	//}
+
+	// for faster testing, if a ROM is not provided, the bootstrap ROM is chosen
+	const char* rom;
+	if(argv[1])	rom = argv[1];
+	else rom = "../roms/DMG_ROM.bin";
 	
-	CPU cpu(argv[1]);
-	Insn insn = cpu.decode();	
-	insn.print();
+	CPU cpu(rom);
+	int num_insn = 3;
+	for(int i=0; i<num_insn; i++) {
+		Insn insn = cpu.decode();	
+		insn.print();
+	}
 	
 	return 0;
 }

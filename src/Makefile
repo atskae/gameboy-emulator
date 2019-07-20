@@ -1,7 +1,7 @@
 PROG = gameboy
 CC = g++
 CFLAGS = -Wall -g
-OBJS = main.o CPU.o Insn.o Reg.o
+OBJS = main.o CPU.o Insn.o Operand.o
 
 $(PROG): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(PROG)
@@ -15,8 +15,8 @@ CPU.o: CPU.cpp
 Insn.o: Insn.cpp
 	$(CC) $(CFLAGS) -c Insn.cpp 
 
-Reg.o: Reg.cpp
-	$(CC) $(CFLAGS) -c Reg.cpp 
+Operand.o: Operand.cpp
+	$(CC) $(CFLAGS) -c Operand.cpp 
 
 clean:
 	rm *.o $(PROG)	

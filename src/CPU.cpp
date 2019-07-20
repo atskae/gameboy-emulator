@@ -8,7 +8,7 @@
 #include "CPU.h"
 #include "Insn.h"
 
-CPU::CPU(char* rom_name) {
+CPU::CPU(const char* rom_name) {
 	// create the instruction.val table from opcodes.csv
 	std::ifstream csv_file("opcodes.csv");
 	if(!csv_file) {
@@ -80,18 +80,18 @@ CPU::CPU(char* rom_name) {
 		std::getline(ss, token, ',');
 		(*insn)->cycles = atoi(token.c_str());
 
-		// target register rd
+		// destination 
 		std::getline(ss, token, ',');
-		(*insn)->rd = str_to_reg(token);
+		(*insn)->des = str_to_operand(token);
 
 		// rd_mem
 		std::getline(ss, token, ',');
 		if(token.compare("1") == 0) (*insn)->rd_mem = true;
 		else (*insn)->rd_mem = false;
 
-		// source register rs
+		// source 
 		std::getline(ss, token, ',');
-		(*insn)->rs = str_to_reg(token);
+		(*insn)->src = str_to_operand(token);
 		
 		// rs_mem
 		std::getline(ss, token, ',');
@@ -121,13 +121,12 @@ CPU::CPU(char* rom_name) {
 		// insn_str
 		(*insn)->insn_str = "";
 		while(std::getline(ss, token, ',')) {
- 			// '\r' causes the cursor to move to beginning when printing ; remove to printf() correctly
+ 			// '\r' causes the cursor to move to beginning when printing ; remove '\r' to printf() correctly
 			token.erase( std::remove(token.begin(), token.end(), '\r'), token.end() );
 			token.erase( std::remove(token.begin(), token.end(), '\"'), token.end() );
 			(*insn)->insn_str += (token + ",");
 		}
 		(*insn)->insn_str.pop_back(); // remove extra comma
-
 		//printf("(%i %i) %s\n", row, col, (*insn)->insn_str.c_str());
 
 		col = (col+1) % 16;
@@ -169,7 +168,7 @@ CPU::CPU(char* rom_name) {
 	
 	// print out bytes
 	for(int i=ROM_START_ADDR; i<ROM_START_ADDR + this->rom_size; i++) {
-		if(i % 32 == 0 && i != 0) printf("\n");
+		if(i % 32 == 0 && i != ROM_START_ADDR) printf("\n");
 		printf("%02x ", (unsigned char) this->memory[i]);
 	}
 	printf("\n");
@@ -193,43 +192,70 @@ Insn CPU::decode() {
 		insn.bytes[i] = memory[this->pc + i];
 	}
 
-	// get immediate value, if any	
-	switch(insn.rs) { // rs = source operand
-		case REG_d8:
-			;
+	// save program counter of this instruction
+	insn.pc = this->pc;
+
+	// get immediate/effective-addresses/XXH value, if any	
+	switch(insn.src) { // rs = source operand
+		case IMM_d8:
 			assert(insn.size == 2 && pc+1 < ROM_START_ADDR + rom_size);
-			insn.imm = memory[pc+1];
+			insn.imm = memory[this->pc+1];
 			break;
-		case REG_d16:
+		case IMM_d16:
 			;
-			assert(insn.size == 3 && pc+2 < ROM_START_ADDR + rom_size);
+			assert(insn.size == 3 && this->pc+2 < ROM_START_ADDR + rom_size);
 			insn.imm = 0x0000;
-			insn.imm |= memory[pc+1];
+			insn.imm |= memory[this->pc+1];
 			insn.imm = insn.imm << 8;
-			insn.imm |= memory[pc+2];
+			insn.imm |= memory[this->pc+2];
 			break;
-		case REG_r8: // 8-bit unsigned data to be added to pc
-			;
-			assert(insn.size == 2 && pc+1 < ROM_START_ADDR + rom_size);
-			insn.offset_pc = memory[pc+1];
+		case IMM_r8: // 8-bit signed data to be added to pc
+			assert(insn.size == 2 && this->pc+1 < ROM_START_ADDR + rom_size);
+			insn.offset_pc = memory[this->pc+1];
 			break;
-		case REG_a8:
-			;
-			assert(insn.size == 2 && pc+1 < ROM_START_ADDR + rom_size);
-			insn.addref = memory[pc+1];
+		case IMM_00H:
+			insn.imm = 0x00;
 			break;
-		case REG_a16:
+		case IMM_08H:
+			insn.imm = 0x08;
+			break;
+		case IMM_10H:
+			insn.imm = 0x10;
+			break;
+		case IMM_18H:
+			insn.imm = 0x18;
+			break;
+		case IMM_20H:
+			insn.imm = 0x20;
+			break;
+		case IMM_28H:
+			insn.imm = 0x28;
+			break;
+		case IMM_30H:
+			insn.imm = 0x30;
+			break;
+		case IMM_38H:
+			insn.imm = 0x38;
+			break;
+		case EA_a8:
+			assert(insn.size == 2 && this->pc+1 < ROM_START_ADDR + rom_size);
+			insn.ea = memory[this->pc+1];
+			break;
+		case EA_a16:
 			;
-			assert(insn.size == 3 && pc+2 < ROM_START_ADDR + rom_size);
-			insn.addref = 0x0000;
-			insn.addref |= memory[pc+1];
-			insn.addref = insn.addref << 8;
-			insn.addref |= memory[pc+2];
+			assert(insn.size == 3 && this->pc+2 < ROM_START_ADDR + rom_size);
+			insn.ea = 0x0000;
+			insn.ea |= memory[this->pc+1];
+			insn.ea = insn.ea << 8;
+			insn.ea |= memory[this->pc+2];
 			break;
 		default:
-			printf("No immediate value.\n");
+			//printf("No immediate value.\n");
 			break; // no immediate value
 	}
+
+	// update program counter
+	this->pc += insn.size;
 
 	//printf("row=%i, col=%i\n", row, col);
 	//// starts to overwrite itself if I print "imm" after insn_str... weird
@@ -241,8 +267,8 @@ Insn CPU::decode() {
 	//	"size=%i bytes,"
 	//	"%s\n",
 	//	opcode,
-	//	reg_to_str(rd).c_str(),
-	//	reg_to_str(rs).c_str(),
+	//	operand_to_str(rd).c_str(),
+	//	operand_to_str(rs).c_str(),
 	//	insn.imm,
 	//	insn.size,
 	//	insn.insn_str.c_str()
