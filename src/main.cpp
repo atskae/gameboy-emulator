@@ -24,6 +24,8 @@ int main(int argc, char* argv[]) {
 	for(int i=0; i<num_insn; i++) {
 		Insn insn = cpu.decode();	
 		insn.print();
+		//cpu.execute(insn);
+		//cpu.print(-1);
 	}
 
 	// test get_operand_type

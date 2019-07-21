@@ -167,12 +167,21 @@ CPU::CPU(const char* rom_name) {
 	rom_file.close();
 	
 	// print out bytes
-	for(int i=ROM_START_ADDR; i<ROM_START_ADDR + this->rom_size; i++) {
+	this->print_mem(ROM_START_ADDR, ROM_START_ADDR + this->rom_size);
+	//for(int i=ROM_START_ADDR; i<ROM_START_ADDR + this->rom_size; i++) {
+	//	if(i % 32 == 0 && i != ROM_START_ADDR) printf("\n");
+	//	printf("%02x ", (unsigned char) this->memory[i]);
+	//}
+	//printf("\n");
+
+}
+
+void CPU::print_mem(int start, int end) {
+	for(int i=start; i<end; i++) {
 		if(i % 32 == 0 && i != ROM_START_ADDR) printf("\n");
 		printf("%02x ", (unsigned char) this->memory[i]);
 	}
 	printf("\n");
-
 }
 
 unsigned short CPU::read_reg(operand_t reg) {
@@ -198,9 +207,59 @@ unsigned short CPU::read_reg(operand_t reg) {
 		case REG_L:
 			return this->regs[get_parent_reg(reg)] & 0x00FF;
 		default:
+			printf("Value not read from register.\n");
 			return 0;
 	}
 
+}
+
+void CPU::write_reg(operand_t reg, unsigned short val) {
+	
+	if(get_operand_type(reg) != OPERAND_REG) return;
+	
+	switch(reg) {
+		case REG_AF:
+		case REG_BC:
+		case REG_DE:
+		case REG_HL:
+			this->regs[reg] = val;
+			return;
+		// upper nibble
+		case REG_A:
+		case REG_B:
+		case REG_D:
+		case REG_H:
+			{
+			unsigned short* r = &this->regs[get_parent_reg(reg)];
+			*r |= (val << 8);
+			}
+			return;
+		// lower nibble
+		case REG_F:
+		case REG_C:
+		case REG_E:
+		case REG_L:
+			{	
+			unsigned short* r = &this->regs[get_parent_reg(reg)];
+			*r |= (val & ~0xFF00);
+			}
+			return;
+		default:
+			printf("Value not written to register.\n");
+			return;
+	}
+
+}
+
+void CPU::print(short mem_start) {
+	printf("== CPU State ==\n");
+	printf("pc=0x%04x, sp=0x%04x\n", this->pc, this->sp);
+	printf("%-4s %-4s %-4s %-4s\n", "A F", "B C", "D E", "H L");
+	printf("%04x %04x %04x %04x\n", regs[REG_AF], regs[REG_BC], regs[REG_DE], regs[REG_HL]);
+	printf("==\n");
+
+	if(mem_start < 0) return;
+	this->print_mem(mem_start, MEMORY_SIZE);	
 }
 
 // decodes one instruction at insn pointed by pc
@@ -307,21 +366,19 @@ Insn CPU::decode() {
 void CPU::execute(Insn insn) {
 	
 	// get source value
-	unsigned short src = 0;
+	unsigned short src_val = 0;
 	switch(get_operand_type(insn.src)) {
 		case OPERAND_REG:
 			;
-			src = this->read_reg(insn.src);
-			if(insn.rs_mem) { // dereference the value
-				src = this->memory[src];
-			}
+			src_val = this->read_reg(insn.src);
+			if(insn.rs_mem) src_val = this->memory[src_val]; // dereference the value 
 			break;
 		case OPERAND_IMM:
-			if(insn.src == IMM_r8) src = insn.offset_pc;
-			else src = insn.imm;
+			if(insn.src == IMM_r8) src_val = insn.offset_pc;
+			else src_val = insn.imm;
 			break;
 		case OPERAND_EA:
-			src = insn.ea;
+			src_val = insn.ea;
 			break;
 		case OPERAND_FLAGS:
 			printf("Didn't implement obtaining flag values as source operand.\n");
@@ -335,6 +392,14 @@ void CPU::execute(Insn insn) {
 		case OP_NOP:
 			break;
 		case OP_LD:
+			if(insn.des == OPERAND_REG) {
+				if(insn.rd_mem) {
+					unsigned short addr = this->read_reg(insn.des);
+					this->memory[addr] = src_val;
+				}
+				else this->write_reg(insn.des, src_val);
+			}
+			else if(insn.des == OPERAND_EA) this->memory[insn.ea] = src_val;
 			break;
 		default:
 			break;
