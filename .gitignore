@@ -3,3 +3,4 @@
 *.DS_Store
 src/gameboy
 opcodes/opcodes.csv
+opcodes/cb_opcodes.csv

@@ -8,9 +8,68 @@ def remove_paren(s):
     s = s.replace(')', '')
     return s
 
+def table_to_csv(table, outfile_name):
+    out_file = open(outfile_name, 'w');
+    csv_file = csv.writer(out_file)
+    
+    # write .csv header
+    csv_file.writerow(['op', 'size', 'cycles', 'rd', 'rd_mem', 'rs', 'rs_mem', 'z_f', 'n_f', 'h_f', 'c_f', 'insn_str'])
+ 
+    # iterate through the rows
+    rows = table.find_all('tr')
+    for i, row in enumerate(rows):
+        #print(row.prettify())
+        if i == 0: # table header ; skip
+            continue 
+        
+        # iterate through the columns in this row
+        cols = row.find_all('td')
+        for j, col in enumerate(cols):
+            if j == 0: # first column is a header ; skip
+                continue
+            # remove non-breaking space (UTF-8 encoding) and replace <br> tags with new line
+            text = re.sub('\xc2\xa0', ' ', col.encode_contents())
+            text = re.sub('<br\/?>', '\n', text).split('\n')
+            if len(text) != 3:
+                csv_file.writerow(['INVALID', -1, -1, -1, -1, -1, -1, -1, -1, -1, -1])
+                continue # empty cell ; invalid opcode
+        
+            insn_str = text[0]
+            insn = insn_str.split(' ')
+            op = insn[0]
+            rd = None
+            rs = None
+            # _mem indicates a dereference
+            rd_mem = 0
+            rs_mem = 0
+            if len(insn) > 1:
+                operands = insn[1].split(',')
+                rd = operands[0]
+                if mem_pattern.match(rd):
+                    rd = remove_paren(rd)
+                    rd_mem = 1
+                if len(operands) > 1:
+                    rs = operands[1]
+                    if mem_pattern.match(rs):
+                        rs = remove_paren(rs)
+                        rs_mem = 1
+    
+            size = re.findall('\d+', text[1])[0]
+            cycles = re.findall('\d+', text[1])[1]
+            flags = text[2].split(' ')
+            z_f = flags[0]
+            n_f = flags[1]
+            h_f = flags[2]
+            c_f = flags[3]
+    
+            # print('(%i, %i) op: %s, size: %s, cycles: %s, flags: (%s, %s, %s, %s)' % (i-1, j-1, op, size, cycles, z_f, n_f, h_f, c_f))
+            csv_file.writerow([op, size, cycles, rd, rd_mem, rs, rs_mem, z_f, n_f, h_f, c_f, insn_str])
+  
+    out_file.close()
+
 html_file = 'gameboy_opcodes.html' 
-out_file = open('opcodes.csv', 'w')
-csv_file = csv.writer(out_file)
+#out_file = open('opcodes.csv', 'w')
+#csv_file = csv.writer(out_file)
 
 mem_pattern = re.compile('^\([^)(]*\)$')
 
@@ -23,59 +82,12 @@ with open(html_file) as fp:
     fp.close()
 
 # write .csv header
-csv_file.writerow(['op', 'size', 'cycles', 'rd', 'rd_mem', 'rs', 'rs_mem', 'z_f', 'n_f', 'h_f', 'c_f', 'insn_str'])
+#csv_file.writerow(['op', 'size', 'cycles', 'rd', 'rd_mem', 'rs', 'rs_mem', 'z_f', 'n_f', 'h_f', 'c_f', 'insn_str'])
 
 # get intruction set table
-table = opcodes.find_all('table')[0].find('tbody')
+opcodes_table = opcodes.find_all('table')[0].find('tbody')
+table_to_csv(opcodes_table, 'opcodes.csv')
 
-# iterate through the rows
-rows = table.find_all('tr')
-for i, row in enumerate(rows):
-    #print(row.prettify())
-    if i == 0: # table header ; skip
-        continue 
-    
-    # iterate through the columns in this row
-    cols = row.find_all('td')
-    for j, col in enumerate(cols):
-        if j == 0: # first column is a header ; skip
-            continue
-        # remove non-breaking space (UTF-8 encoding) and replace <br> tags with new line
-        text = re.sub('\xc2\xa0', ' ', col.encode_contents())
-        text = re.sub('<br\/?>', '\n', text).split('\n')
-        if len(text) != 3:
-            csv_file.writerow(['INVALID', -1, -1, -1, -1, -1, -1, -1, -1, -1, -1])
-            continue # empty cell ; invalid opcode
-    
-        insn_str = text[0]
-        insn = insn_str.split(' ')
-        op = insn[0]
-        rd = None
-        rs = None
-        # _mem indicates a dereference
-        rd_mem = 0
-        rs_mem = 0
-        if len(insn) > 1:
-            operands = insn[1].split(',')
-            rd = operands[0]
-            if mem_pattern.match(rd):
-                rd = remove_paren(rd)
-                rd_mem = 1
-            if len(operands) > 1:
-                rs = operands[1]
-                if mem_pattern.match(rs):
-                    rs = remove_paren(rs)
-                    rs_mem = 1
-
-        size = re.findall('\d+', text[1])[0]
-        cycles = re.findall('\d+', text[1])[1]
-        flags = text[2].split(' ')
-        z_f = flags[0]
-        n_f = flags[1]
-        h_f = flags[2]
-        c_f = flags[3]
-
-        # print('(%i, %i) op: %s, size: %s, cycles: %s, flags: (%s, %s, %s, %s)' % (i-1, j-1, op, size, cycles, z_f, n_f, h_f, c_f))
-        csv_file.writerow([op, size, cycles, rd, rd_mem, rs, rs_mem, z_f, n_f, h_f, c_f, insn_str])
-
-out_file.close()
+cb_table = opcodes.find_all('table')[1].find('tbody')
+table_to_csv(cb_table, 'cb_opcodes.csv')
+#out_file.close()
