@@ -3,6 +3,15 @@
 #include <string>
 #include <iostream>
 
+Insn::Insn():
+	op(OP_INVALID),
+	op_str(""),
+	des(OPERAND_INVALID),
+	src(OPERAND_INVALID),
+	imm(0)
+{
+}
+
 Insn::Insn(op_t op, std::string op_str):
 	des(OPERAND_INVALID),
 	src(OPERAND_INVALID),

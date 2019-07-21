@@ -107,23 +107,31 @@ std::string operand_to_str(operand_t operand) {
 			return "38H";
 		case FLAGS_Z:
 			return "Z";
-		// operand groups
-		case OPERAND_REG:
-			return "OPERAND_REG";
-		case OPERAND_IMM:
-			return "OPERAND_IMM";
-		case OPERAND_EA:
-			return "OPERAND_EA";
-		case OPERAND_FLAGS:
-			return "OPERAND_FLAGS";
-		case OPERAND_PREFIX:
-			return "OPERAND_PREFIX";
 		default:
 			printf("Unknown operand.\n");
 			break;
 	}
 
-	return "INVALID";
+	return "OPERAND_INVALID";
+}
+
+std::string operand_type_to_str(operand_type_t operand_type) {
+	switch(operand_type) {
+		case OPERAND_TYPE_REG:
+			return "OPERAND_TYPE_REG";
+		case OPERAND_TYPE_IMM:
+			return "OPERAND_TYPE_IMM";
+		case OPERAND_TYPE_EA:
+			return "OPERAND_TYPE_EA";
+		case OPERAND_TYPE_FLAGS:
+			return "OPERAND_TYPE_FLAGS";
+		case OPERAND_TYPE_PREFIX:
+			return "OPERAND_TYPE_PREFIX";
+		default:
+			printf("Unknown operand type.\n");
+			break;
+	}
+	return "OPERAND_TYPE_INVALID";
 }
 
 flag_op_t get_flag_op(std::string token) {
@@ -137,11 +145,10 @@ flag_op_t get_flag_op(std::string token) {
 	return flag_op;
 }
 
-operand_t get_operand_type(operand_t operand) {
-	operand_t type = OPERAND_INVALID;
+operand_type_t get_operand_type(operand_t operand) {
+	operand_type_t type = OPERAND_TYPE_INVALID;
 	
 	switch(operand) {
-		case OPERAND_REG:
 		case REG_AF:
 		case REG_BC:
 		case REG_DE:
@@ -158,9 +165,8 @@ operand_t get_operand_type(operand_t operand) {
 		case REG_SP_R8:
 		case REG_HL_P:
 		case REG_HL_M:
-			type = OPERAND_REG;
+			type = OPERAND_TYPE_REG;
 			break;
-		case OPERAND_IMM:
 		case IMM_d8:
 		case IMM_d16:
 		case IMM_r8:
@@ -172,18 +178,16 @@ operand_t get_operand_type(operand_t operand) {
 		case IMM_28H:
 		case IMM_30H:
 		case IMM_38H:
-			type = OPERAND_IMM;
+			type = OPERAND_TYPE_IMM;
 			break;
-		case OPERAND_EA:
 		case EA_a8: 
 		case EA_a16:
-			type = OPERAND_EA;
+			type = OPERAND_TYPE_EA;
 			break;
-		case OPERAND_FLAGS:
 		case FLAGS_NZ:
 		case FLAGS_NC:
 		case FLAGS_Z:
-			type = OPERAND_FLAGS;
+			type = OPERAND_TYPE_FLAGS;
 			break;
 		default:
 			break;

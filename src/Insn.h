@@ -56,6 +56,8 @@ class Insn {
 		//reg_t rs; // source register
 		operand_t des; // destination
 		operand_t src; // source
+		operand_type_t des_type;
+		operand_type_t src_type;
 
 		bool rd_mem; // if True, dereference rd
 		bool rs_mem; // if True, dereference rs
@@ -69,6 +71,7 @@ class Insn {
 		// z, n, h, c
 		flag_t flags[4];	
 
+		Insn();
 		Insn(op_t op, std::string op_str);
 
 		void print();		

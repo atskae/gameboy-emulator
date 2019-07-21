@@ -9,6 +9,8 @@
 #include "Insn.h"
 
 CPU::CPU(const char* rom_name) {
+	printf("CPU constructor.\n");
+
 	// create the instruction.val table from opcodes.csv
 	std::ifstream csv_file("opcodes.csv");
 	if(!csv_file) {
@@ -83,6 +85,7 @@ CPU::CPU(const char* rom_name) {
 		// destination 
 		std::getline(ss, token, ',');
 		(*insn)->des = str_to_operand(token);
+		(*insn)->des_type = get_operand_type((*insn)->des);
 
 		// rd_mem
 		std::getline(ss, token, ',');
@@ -92,6 +95,7 @@ CPU::CPU(const char* rom_name) {
 		// source 
 		std::getline(ss, token, ',');
 		(*insn)->src = str_to_operand(token);
+		(*insn)->src_type = get_operand_type((*insn)->src);
 		
 		// rs_mem
 		std::getline(ss, token, ',');
@@ -133,6 +137,7 @@ CPU::CPU(const char* rom_name) {
 		if(col == 0) row = (row+1) % 16;
 	}
 	csv_file.close();
+	printf("Parsed opcodes.csv\n");
 
 	// print insn table
 	//for(int r=0; r<16; r++) {
@@ -143,8 +148,8 @@ CPU::CPU(const char* rom_name) {
 	//}
 
 	// initialize registers
-	for(int i=0; i<NUM_REGS; i++) {
-		regs[i] = 0;
+	for(int i=0; i<NUM_REGS/2; i++) {
+		this->regs[i] = 0;
 	}
 	// initial values on power up
 	sp = 0xFFFE; // p.64
@@ -185,8 +190,12 @@ void CPU::print_mem(int start, int end) {
 }
 
 unsigned short CPU::read_reg(operand_t reg) {
-	
-	if(get_operand_type(reg) != OPERAND_REG) return 0;
+
+	printf("Attempting to read from %s\n", operand_to_str(reg).c_str());	
+	if(get_operand_type(reg) != OPERAND_TYPE_REG) {
+		printf("%s is not a register. Failed to read.\n", operand_to_str(reg).c_str());
+		return 0;
+	}
 	
 	switch(reg) {
 		case REG_AF:
@@ -194,6 +203,9 @@ unsigned short CPU::read_reg(operand_t reg) {
 		case REG_DE:
 		case REG_HL:
 			return this->regs[reg];
+		case REG_HL_P:
+		case REG_HL_M:
+			return this->regs[REG_HL];	
 		// upper nibble
 		case REG_A:
 		case REG_B:
@@ -215,9 +227,16 @@ unsigned short CPU::read_reg(operand_t reg) {
 
 void CPU::write_reg(operand_t reg, unsigned short val) {
 	
-	if(get_operand_type(reg) != OPERAND_REG) return;
-	
+	if(get_operand_type(reg) != OPERAND_TYPE_REG) {
+		printf("%s is not a register. Failed to write.\n", operand_to_str(reg).c_str());
+		return;
+	}
+
+	//printf("Will write to %s\n", operand_to_str(reg).c_str());
 	switch(reg) {
+		case REG_SP:
+			this->sp = val;
+			break;
 		case REG_AF:
 		case REG_BC:
 		case REG_DE:
@@ -252,11 +271,11 @@ void CPU::write_reg(operand_t reg, unsigned short val) {
 }
 
 void CPU::print(short mem_start) {
-	printf("== CPU State ==\n");
+	printf("----- CPU State -----\n");
 	printf("pc=0x%04x, sp=0x%04x\n", this->pc, this->sp);
 	printf("%-4s %-4s %-4s %-4s\n", "A F", "B C", "D E", "H L");
 	printf("%04x %04x %04x %04x\n", regs[REG_AF], regs[REG_BC], regs[REG_DE], regs[REG_HL]);
-	printf("==\n");
+	printf("---------------------\n\n");
 
 	if(mem_start < 0) return;
 	this->print_mem(mem_start, MEMORY_SIZE);	
@@ -266,14 +285,27 @@ void CPU::print(short mem_start) {
 Insn CPU::decode() {
 	
 	unsigned char opcode = memory[this->pc];
+	bool get_cb_insn; // sets to True of the previous byte was a CB prefix ; if True, decode using a different cb_insn_table
+	if(opcode == 0xCB) {
+		get_cb_insn = true;
+		// fetch next instruction
+		this->pc++; // 0xCB is one byte long
+		opcode = memory[this->pc];
+	}
+	else get_cb_insn = false;
 	
 	// row and column from GameBoy instruction.val table:
 	// http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
-	
+
+	Insn insn;
 	unsigned char row = (opcode & 0xF0) >> 4; // read the upper nibble
 	unsigned char col = opcode & 0x0F; // read the lower nibble
-	Insn insn = *insn_table[row][col]; // create a copy
-
+	if(get_cb_insn) {
+		printf("CB prefix table not build!!\n");
+		//insn = *cb_insn_table[row][col];
+	}
+	else insn = *insn_table[row][col]; // create a copy
+	
 	// obtain raw bytes
 	for(int i=0; i<insn.size; i++) {
 		insn.bytes[i] = memory[this->pc + i];
@@ -282,19 +314,45 @@ Insn CPU::decode() {
 	// save program counter of this instruction
 	insn.pc = this->pc;
 
+	// save instruction-specific information
+	switch(insn.op) {
+		case OP_XOR:
+			{
+			unsigned char byte = insn.bytes[0];
+			switch(byte) {
+				// target is A (p.86)
+				case 0xAF:
+				case 0xA8:
+				case 0xA9:
+				case 0xAA:
+				case 0xAB:
+				case 0xAC:
+				case 0xAD:
+				case 0xAE:
+				case 0xEE:
+					insn.des_type = OPERAND_TYPE_REG;
+					insn.des = REG_A;
+				default:
+					break;
+			}
+			}
+		default:
+			break;
+	}	
+
 	// get immediate/effective-addresses/XXH value, if any	
 	switch(insn.src) { // rs = source operand
 		case IMM_d8:
 			assert(insn.size == 2 && pc+1 < ROM_START_ADDR + rom_size);
-			insn.imm = memory[this->pc+1];
+			insn.imm = (unsigned char) memory[this->pc+1];
 			break;
 		case IMM_d16:
 			;
 			assert(insn.size == 3 && this->pc+2 < ROM_START_ADDR + rom_size);
 			insn.imm = 0x0000;
-			insn.imm |= memory[this->pc+1];
+			insn.imm |= (unsigned char) memory[this->pc+1];
 			insn.imm = insn.imm << 8;
-			insn.imm |= memory[this->pc+2];
+			insn.imm |= (unsigned char) memory[this->pc+2];
 			break;
 		case IMM_r8: // 8-bit signed data to be added to pc
 			assert(insn.size == 2 && this->pc+1 < ROM_START_ADDR + rom_size);
@@ -326,15 +384,15 @@ Insn CPU::decode() {
 			break;
 		case EA_a8:
 			assert(insn.size == 2 && this->pc+1 < ROM_START_ADDR + rom_size);
-			insn.ea = memory[this->pc+1];
+			insn.ea = (unsigned char) memory[this->pc+1];
 			break;
 		case EA_a16:
 			;
 			assert(insn.size == 3 && this->pc+2 < ROM_START_ADDR + rom_size);
 			insn.ea = 0x0000;
-			insn.ea |= memory[this->pc+1];
+			insn.ea |= (unsigned char) memory[this->pc+1];
 			insn.ea = insn.ea << 8;
-			insn.ea |= memory[this->pc+2];
+			insn.ea |= (unsigned char) memory[this->pc+2];
 			break;
 		default:
 			//printf("No immediate value.\n");
@@ -364,24 +422,29 @@ Insn CPU::decode() {
 }
 
 void CPU::execute(Insn insn) {
+
+	printf("execute()\n");
+	insn.print();
 	
 	// get source value
 	unsigned short src_val = 0;
-	switch(get_operand_type(insn.src)) {
-		case OPERAND_REG:
+	switch(insn.src_type) {
+		case OPERAND_TYPE_REG:
 			;
+			printf("Source operand is a register.\n");
 			src_val = this->read_reg(insn.src);
 			if(insn.rs_mem) src_val = this->memory[src_val]; // dereference the value 
 			break;
-		case OPERAND_IMM:
+		case OPERAND_TYPE_IMM:
+			//printf("Source operand is an immediate: %02x\n", insn.imm);
 			if(insn.src == IMM_r8) src_val = insn.offset_pc;
 			else src_val = insn.imm;
 			break;
-		case OPERAND_EA:
+		case OPERAND_TYPE_EA:
 			src_val = insn.ea;
 			break;
-		case OPERAND_FLAGS:
-			printf("Didn't implement obtaining flag values as source operand.\n");
+		case OPERAND_TYPE_FLAGS:
+			printf("Didn't implement obtaining flag values as source operand...\n");
 			break;
 		default:
 			break;
@@ -392,15 +455,22 @@ void CPU::execute(Insn insn) {
 		case OP_NOP:
 			break;
 		case OP_LD:
-			if(insn.des == OPERAND_REG) {
+			if(insn.des_type == OPERAND_TYPE_REG) {
 				if(insn.rd_mem) {
 					unsigned short addr = this->read_reg(insn.des);
 					this->memory[addr] = src_val;
 				}
-				else this->write_reg(insn.des, src_val);
+				else write_reg(insn.des, src_val);
+				
+				if(insn.des == REG_HL_P) this->regs[REG_HL]++;
+				else if(insn.des == REG_HL_M) this->regs[REG_HL]--;
 			}
-			else if(insn.des == OPERAND_EA) this->memory[insn.ea] = src_val;
+			else if(insn.des_type == OPERAND_TYPE_EA) this->memory[insn.ea] = src_val; // how is this different from rd_mem = True?
 			break;
+		case OP_XOR:
+			if(insn.des_type == OPERAND_TYPE_REG) {
+				write_reg(insn.des, read_reg(insn.des) ^ src_val); 
+			}
 		default:
 			break;
 	}

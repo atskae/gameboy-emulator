@@ -13,6 +13,7 @@ class CPU {
 	private:
 		// instruction set table
 		Insn* insn_table[16][16];
+		Insn* cb_insn_table[16][16]; // insn with CB prefix
 
 		// registers (p.61)
 		unsigned short regs[NUM_REGS/2]; // 8-bit registers ; use enum reg to index into regs[]

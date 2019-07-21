@@ -20,12 +20,13 @@ int main(int argc, char* argv[]) {
 	else rom = "../roms/DMG_ROM.bin";
 	
 	CPU cpu(rom);
-	int num_insn = 3;
+	int num_insn = 5;
 	for(int i=0; i<num_insn; i++) {
+		printf("Round %i\n", i);
 		Insn insn = cpu.decode();	
-		insn.print();
-		//cpu.execute(insn);
-		//cpu.print(-1);
+		//insn.print();
+		cpu.execute(insn);
+		cpu.print(-1);
 	}
 
 	// test get_operand_type
