@@ -8,13 +8,12 @@
 #include "CPU.h"
 #include "Insn.h"
 
-CPU::CPU(const char* rom_name) {
-	printf("CPU constructor.\n");
-
-	// create the instruction.val table from opcodes.csv
-	std::ifstream csv_file("opcodes.csv");
+// creates an instruction table from .csv file obtained from parse.py
+void CPU::read_opcodes_file(std::string filename, bool is_cb) {
+	
+	std::ifstream csv_file(filename);
 	if(!csv_file) {
-		printf("Failed to open opcodes.csv\n");
+		printf("Failed to open %s\n", filename.c_str());
 		return;
 	}
 	
@@ -35,43 +34,58 @@ CPU::CPU(const char* rom_name) {
 		std::getline(ss, op, ',');
 
 		// create the instruction
-		Insn** insn = &this->insn_table[row][col];
-		if(op.compare("NOP") == 0) *insn = new NOP(OP_NOP, op);
-		else if(op.compare("LD") == 0) *insn = new LD(OP_LD, op);	
-		else if(op.compare("INC") == 0) *insn = new INC(OP_INC, op);
-		else if(op.compare("DEC") == 0) *insn = new DEC(OP_DEC, op);
-		else if(op.compare("RLCA") == 0) *insn = new RLCA(OP_RLCA, op);
-		else if(op.compare("ADD") == 0) *insn = new ADD(OP_ADD, op);
-		else if(op.compare("RRCA") == 0) *insn = new RRCA(OP_RRCA, op);
-		else if(op.compare("STOP") == 0) *insn = new STOP(OP_STOP, op);
-		else if(op.compare("RLA") == 0) *insn = new RLA(OP_RLA, op);
-		else if(op.compare("JR") == 0) *insn = new JR(OP_JR, op);
-		else if(op.compare("RRA") == 0) *insn = new RRA(OP_RRA, op);
-		else if(op.compare("DAA") == 0) *insn = new DAA(OP_DAA, op);
-		else if(op.compare("CPL") == 0) *insn = new CPL(OP_CPL, op);
-		else if(op.compare("SCF") == 0) *insn = new SCF(OP_SCF, op);
-		else if(op.compare("CCF") == 0) *insn = new CCF(OP_CCF, op);
-		else if(op.compare("HALT") == 0) *insn = new HALT(OP_HALT, op);
-		else if(op.compare("ADC") == 0) *insn = new ADC(OP_ADC, op);
-		else if(op.compare("SUB") == 0) *insn = new SUB(OP_SUB, op);
-		else if(op.compare("SBC") == 0) *insn = new SBC(OP_SBC, op);
-		else if(op.compare("AND") == 0) *insn = new AND(OP_AND, op);
-		else if(op.compare("XOR") == 0) *insn = new XOR(OP_XOR, op);
-		else if(op.compare("OR") == 0) *insn = new OR(OP_OR, op);
-		else if(op.compare("CP") == 0) *insn = new CP(OP_CP, op);
-		else if(op.compare("RET") == 0) *insn = new RET(OP_RET, op);
-		else if(op.compare("POP") == 0) *insn = new POP(OP_POP, op);
-		else if(op.compare("JP") == 0) *insn = new JP(OP_JP, op);
-		else if(op.compare("CALL") == 0) *insn = new CALL(OP_CALL, op);
-		else if(op.compare("PUSH") == 0) *insn = new PUSH(OP_PUSH, op);
-		else if(op.compare("RST") == 0) *insn = new RST(OP_RST, op);
-		else if(op.compare("PREFIX") == 0) *insn = new PREFIX(OP_PREFIX, op);
-		else if(op.compare("RETI") == 0) *insn = new RETI(OP_RETI, op);
-		else if(op.compare("LDH") == 0) *insn = new LDH(OP_LDH, op);
-		else if(op.compare("DI") == 0) *insn = new DI(OP_DI, op);
-		else if(op.compare("EI") == 0) *insn = new EI(OP_EI, op);
-		else *insn = new INVALID(OP_INVALID, "INVALID");
-
+		Insn** insn;
+		if(is_cb) {
+			insn = &this->cb_insn_table[row][col];
+			if(op.compare("RLC") == 0) *insn = new RLC(OP_RLC, op);
+			else if(op.compare("RL") == 0) *insn = new RL(OP_RL, op);
+			else if(op.compare("SLA") == 0) *insn = new SLA(OP_SLA, op);
+			else if(op.compare("RRC") == 0) *insn = new RRC(OP_RRC, op);
+			else if(op.compare("RR") == 0) *insn = new RR(OP_RR, op);
+			else if(op.compare("SRA") == 0) *insn = new SRA(OP_SRA, op);
+			else if(op.compare("SRL") == 0) *insn = new SRL(OP_SRL, op);
+			else if(op.compare("SWAP") == 0) *insn = new SWAP(OP_SWAP, op);
+			else if(op.compare("BIT") == 0) *insn = new BIT(OP_BIT, op);
+			else if(op.compare("RES") == 0) *insn = new RES(OP_RES, op);
+			else if(op.compare("SET") == 0) *insn = new SET(OP_SET, op);
+		} else {
+			insn = &this->insn_table[row][col];
+			if(op.compare("NOP") == 0) *insn = new NOP(OP_NOP, op);
+			else if(op.compare("LD") == 0) *insn = new LD(OP_LD, op);	
+			else if(op.compare("INC") == 0) *insn = new INC(OP_INC, op);
+			else if(op.compare("DEC") == 0) *insn = new DEC(OP_DEC, op);
+			else if(op.compare("RLCA") == 0) *insn = new RLCA(OP_RLCA, op);
+			else if(op.compare("ADD") == 0) *insn = new ADD(OP_ADD, op);
+			else if(op.compare("RRCA") == 0) *insn = new RRCA(OP_RRCA, op);
+			else if(op.compare("STOP") == 0) *insn = new STOP(OP_STOP, op);
+			else if(op.compare("RLA") == 0) *insn = new RLA(OP_RLA, op);
+			else if(op.compare("JR") == 0) *insn = new JR(OP_JR, op);
+			else if(op.compare("RRA") == 0) *insn = new RRA(OP_RRA, op);
+			else if(op.compare("DAA") == 0) *insn = new DAA(OP_DAA, op);
+			else if(op.compare("CPL") == 0) *insn = new CPL(OP_CPL, op);
+			else if(op.compare("SCF") == 0) *insn = new SCF(OP_SCF, op);
+			else if(op.compare("CCF") == 0) *insn = new CCF(OP_CCF, op);
+			else if(op.compare("HALT") == 0) *insn = new HALT(OP_HALT, op);
+			else if(op.compare("ADC") == 0) *insn = new ADC(OP_ADC, op);
+			else if(op.compare("SUB") == 0) *insn = new SUB(OP_SUB, op);
+			else if(op.compare("SBC") == 0) *insn = new SBC(OP_SBC, op);
+			else if(op.compare("AND") == 0) *insn = new AND(OP_AND, op);
+			else if(op.compare("XOR") == 0) *insn = new XOR(OP_XOR, op);
+			else if(op.compare("OR") == 0) *insn = new OR(OP_OR, op);
+			else if(op.compare("CP") == 0) *insn = new CP(OP_CP, op);
+			else if(op.compare("RET") == 0) *insn = new RET(OP_RET, op);
+			else if(op.compare("POP") == 0) *insn = new POP(OP_POP, op);
+			else if(op.compare("JP") == 0) *insn = new JP(OP_JP, op);
+			else if(op.compare("CALL") == 0) *insn = new CALL(OP_CALL, op);
+			else if(op.compare("PUSH") == 0) *insn = new PUSH(OP_PUSH, op);
+			else if(op.compare("RST") == 0) *insn = new RST(OP_RST, op);
+			else if(op.compare("PREFIX") == 0) *insn = new PREFIX(OP_PREFIX, op);
+			else if(op.compare("RETI") == 0) *insn = new RETI(OP_RETI, op);
+			else if(op.compare("LDH") == 0) *insn = new LDH(OP_LDH, op);
+			else if(op.compare("DI") == 0) *insn = new DI(OP_DI, op);
+			else if(op.compare("EI") == 0) *insn = new EI(OP_EI, op);
+			else *insn = new INVALID(OP_INVALID, "INVALID");
+		}
 		// format: op,size,cycles,rd,rd_mem,rs,rs_mem,z_f,n_f,h_f,c_f,insn_str
 		
 		// insn size in bytes
@@ -136,8 +150,16 @@ CPU::CPU(const char* rom_name) {
 		col = (col+1) % 16;
 		if(col == 0) row = (row+1) % 16;
 	}
+	
 	csv_file.close();
-	printf("Parsed opcodes.csv\n");
+	printf("Parsed %s\n", filename.c_str());
+}
+
+CPU::CPU(const char* rom_name) {
+
+	printf("CPU constructor.\n");
+	read_opcodes_file("opcodes.csv", false);
+	read_opcodes_file("cb_opcodes.csv", true);
 
 	// print insn table
 	//for(int r=0; r<16; r++) {
@@ -287,6 +309,7 @@ Insn CPU::decode() {
 	unsigned char opcode = memory[this->pc];
 	bool get_cb_insn; // sets to True of the previous byte was a CB prefix ; if True, decode using a different cb_insn_table
 	if(opcode == 0xCB) {
+		printf("0xCB prefix\n");
 		get_cb_insn = true;
 		// fetch next instruction
 		this->pc++; // 0xCB is one byte long
@@ -300,10 +323,7 @@ Insn CPU::decode() {
 	Insn insn;
 	unsigned char row = (opcode & 0xF0) >> 4; // read the upper nibble
 	unsigned char col = opcode & 0x0F; // read the lower nibble
-	if(get_cb_insn) {
-		printf("CB prefix table not build!!\n");
-		//insn = *cb_insn_table[row][col];
-	}
+	if(get_cb_insn) insn = *cb_insn_table[row][col];
 	else insn = *insn_table[row][col]; // create a copy
 	
 	// obtain raw bytes
@@ -477,5 +497,4 @@ void CPU::execute(Insn insn) {
 }
 
 CPU::~CPU() {
-	printf("CPU destructed.\n");
 }

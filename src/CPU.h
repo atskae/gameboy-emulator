@@ -28,6 +28,7 @@ class CPU {
 		CPU(const char* rom_name);
 	
 		// methods	
+		void read_opcodes_file(std::string filename, bool is_cb);
 		unsigned short read_reg(operand_t reg);
 		void write_reg(operand_t reg, unsigned short val);
 		void print(short mem_start); // print CPU state and memory specified by parameters

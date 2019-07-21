@@ -40,7 +40,19 @@ enum op_t {
 	OP_RETI,
 	OP_LDH,
 	OP_DI,
-	OP_EI
+	OP_EI,
+	/* CB-prefixed instructions */
+	OP_RLC,
+	OP_RL,
+	OP_SLA,
+	OP_RRC,
+	OP_RR,
+	OP_SRA,
+	OP_SRL,
+	OP_SWAP,
+	OP_BIT,
+	OP_RES,
+	OP_SET
 };
 
 class Insn {
@@ -291,6 +303,74 @@ class EI : public Insn {
 	public:
 		EI(op_t op, std::string op_str);
 		~EI();
+};
+
+/* CB-prefixed instructions */
+	
+class RLC: public Insn {
+	public:
+		RLC(op_t op, std::string op_str);
+		~RLC();
+};
+
+class RL: public Insn {
+	public:
+		RL(op_t op, std::string op_str);
+		~RL();
+};
+
+class SLA: public Insn {
+	public:
+		SLA(op_t op, std::string op_str);
+		~SLA();
+};
+
+class RRC: public Insn {
+	public:
+		RRC(op_t op, std::string op_str);
+		~RRC();
+};
+
+class RR: public Insn {
+	public:
+		RR(op_t op, std::string op_str);
+		~RR();
+};
+
+class SRA: public Insn {
+	public:
+		SRA(op_t op, std::string op_str);
+		~SRA();
+};
+
+class SRL: public Insn {
+	public:
+		SRL(op_t op, std::string op_str);
+		~SRL();
+};
+
+class SWAP: public Insn {
+	public:
+		SWAP(op_t op, std::string op_str);
+		~SWAP();
+};
+
+class BIT: public Insn {
+	public:
+		BIT(op_t op, std::string op_str);
+		~BIT();
+};
+
+class RES: public Insn {
+	public:
+		RES(op_t op, std::string op_str);
+		~RES();
+};
+
+class SET: public Insn {
+	public:
+		SET(op_t op, std::string op_str);
+		~SET();
 };
 
 #endif // GB_INSN_H

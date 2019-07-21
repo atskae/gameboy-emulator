@@ -211,3 +211,62 @@ EI::EI(op_t op, std::string op_str):
 	Insn(op, op_str)
 {
 }
+
+/* CB-prefixed instructions */
+
+RLC::RLC(op_t op, std::string op_str):
+	Insn(op, op_str)
+{
+}
+
+RL::RL(op_t op, std::string op_str):
+	Insn(op, op_str)
+{
+}
+
+SLA::SLA(op_t op, std::string op_str):
+	Insn(op, op_str)
+{
+}
+
+RRC::RRC(op_t op, std::string op_str):
+	Insn(op, op_str)
+{
+}
+
+RR::RR(op_t op, std::string op_str):
+	Insn(op, op_str)
+{
+}
+
+SRA::SRA(op_t op, std::string op_str):
+	Insn(op, op_str)
+{
+}
+
+SRL::SRL(op_t op, std::string op_str):
+	Insn(op, op_str)
+{
+}
+
+SWAP::SWAP(op_t op, std::string op_str):
+	Insn(op, op_str)
+{
+}
+
+BIT::BIT(op_t op, std::string op_str):
+	Insn(op, op_str)
+{
+}
+
+RES::RES(op_t op, std::string op_str):
+	Insn(op, op_str)
+{
+}
+
+SET::SET(op_t op, std::string op_str):
+	Insn(op, op_str)
+{
+}
+
+
