@@ -15,9 +15,18 @@ A list of GameBoy resources. Some of the files are saved in this directory for o
 * [Decoding Z80 Opcodes](http://www.z80.info/decoding.htm)
 * [Decoding GameBoy Z80 Opcodes](https://gb-archive.github.io/salvage/decoding_gbz80_opcodes/Decoding%20Gamboy%20Z80%20Opcodes.html)
 	Based on Decoding Z80 Opcodes
+* [Pan Docs](http://bgb.bircd.org/pandocs.htm)
+    * `"Everything you wanted to know about GAMEBOY * but were afraid to ask"`
 
 ## Other
 * [Gameboy Bootstrap ROM](http://gbdev.gg8.se/wiki/articles/Gameboy_Bootstrap_ROM)
+* [Sound hardware](https://gbdev.gg8.se/wiki/articles/Gameboy_sound_hardware)
+* [Blargg's tests](https://gbdev.gg8.se/files/roms/blargg-gb-tests/)
+    * A set of ROMS that test emulated Gameboy hardware (CPU instructions/timing, graphics, sound)
+* [Gameboy Color](https://en.wikipedia.org/wiki/Game_Boy_Color)
+    * [Pan Docs](http://bgb.bircd.org/pandocs.htm) has specifications on Gameboy color
+* [How QEMU disassembles instructions](https://github.com/qemu/qemu/blob/cbf01142b2aef0c0b4e995cecd7e79d342bbc47e/tcg/tci.c)
+    * Uses a giant switch statement on the instruction opcode
 
 ## Notes on the [The Ultimate Game Boy Talk](https://www.youtube.com/watch?v=HyzD8pNlpwI)
 
